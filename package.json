@@ -5,8 +5,10 @@
   "private": true,
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "ios": "expo run:ios",
+    "android": "expo run:android",
+    "ios:go": "expo start --ios",
+    "android:go": "expo start --android",
     "web": "expo start --web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit"
@@ -21,6 +23,7 @@
     "@tanstack/react-query": "~5.104.3",
     "expo": "~57.0.30",
     "expo-constants": "~57.0.22",
+    "expo-dev-client": "~57.0.20",
     "expo-device": "~57.0.2",
     "expo-font": "~57.0.4",
     "expo-glass-effect": "~57.0.4",
