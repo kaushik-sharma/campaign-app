@@ -1,0 +1,55 @@
+/**
+ * Phosphor icons, imported per file so the bundle only carries what we use.
+ * Add new icons here rather than importing from 'phosphor-react-native' directly.
+ */
+export type { IconProps, IconWeight } from 'phosphor-react-native';
+export type { Icon as IconComponent } from 'phosphor-react-native';
+export { ArrowClockwiseIcon } from 'phosphor-react-native/src/icons/ArrowClockwise';
+export { ArrowLeftIcon } from 'phosphor-react-native/src/icons/ArrowLeft';
+export { ArrowRightIcon } from 'phosphor-react-native/src/icons/ArrowRight';
+export { AtomIcon } from 'phosphor-react-native/src/icons/Atom';
+export { BankIcon } from 'phosphor-react-native/src/icons/Bank';
+export { BellIcon } from 'phosphor-react-native/src/icons/Bell';
+export { BookmarkSimpleIcon } from 'phosphor-react-native/src/icons/BookmarkSimple';
+export { CaretDownIcon } from 'phosphor-react-native/src/icons/CaretDown';
+export { CaretRightIcon } from 'phosphor-react-native/src/icons/CaretRight';
+export { ChartBarIcon } from 'phosphor-react-native/src/icons/ChartBar';
+export { ChartLineUpIcon } from 'phosphor-react-native/src/icons/ChartLineUp';
+export { CheckCircleIcon } from 'phosphor-react-native/src/icons/CheckCircle';
+export { CheckIcon } from 'phosphor-react-native/src/icons/Check';
+export { CompassIcon } from 'phosphor-react-native/src/icons/Compass';
+export { DeviceMobileIcon } from 'phosphor-react-native/src/icons/DeviceMobile';
+export { DotsThreeCircleIcon } from 'phosphor-react-native/src/icons/DotsThreeCircle';
+export { EnvelopeSimpleIcon } from 'phosphor-react-native/src/icons/EnvelopeSimple';
+export { EyeSlashIcon } from 'phosphor-react-native/src/icons/EyeSlash';
+export { FlaskIcon } from 'phosphor-react-native/src/icons/Flask';
+export { GearSixIcon } from 'phosphor-react-native/src/icons/GearSix';
+export { GraduationCapIcon } from 'phosphor-react-native/src/icons/GraduationCap';
+export { HeartbeatIcon } from 'phosphor-react-native/src/icons/Heartbeat';
+export { HouseIcon } from 'phosphor-react-native/src/icons/House';
+export { InfoIcon } from 'phosphor-react-native/src/icons/Info';
+export { LeafIcon } from 'phosphor-react-native/src/icons/Leaf';
+export { LockSimpleIcon } from 'phosphor-react-native/src/icons/LockSimple';
+export { MagnifyingGlassIcon } from 'phosphor-react-native/src/icons/MagnifyingGlass';
+export { MegaphoneSimpleIcon } from 'phosphor-react-native/src/icons/MegaphoneSimple';
+export { MicrophoneIcon } from 'phosphor-react-native/src/icons/Microphone';
+export { MoonIcon } from 'phosphor-react-native/src/icons/Moon';
+export { PaintBrushIcon } from 'phosphor-react-native/src/icons/PaintBrush';
+export { PaletteIcon } from 'phosphor-react-native/src/icons/Palette';
+export { PencilSimpleIcon } from 'phosphor-react-native/src/icons/PencilSimple';
+export { PlusIcon } from 'phosphor-react-native/src/icons/Plus';
+export { QuestionIcon } from 'phosphor-react-native/src/icons/Question';
+export { ShareNetworkIcon } from 'phosphor-react-native/src/icons/ShareNetwork';
+export { ShieldCheckIcon } from 'phosphor-react-native/src/icons/ShieldCheck';
+export { SignOutIcon } from 'phosphor-react-native/src/icons/SignOut';
+export { SlidersHorizontalIcon } from 'phosphor-react-native/src/icons/SlidersHorizontal';
+export { SparkleIcon } from 'phosphor-react-native/src/icons/Sparkle';
+export { StorefrontIcon } from 'phosphor-react-native/src/icons/Storefront';
+export { SunIcon } from 'phosphor-react-native/src/icons/Sun';
+export { UserCircleIcon } from 'phosphor-react-native/src/icons/UserCircle';
+export { UsersThreeIcon } from 'phosphor-react-native/src/icons/UsersThree';
+export { VibrateIcon } from 'phosphor-react-native/src/icons/Vibrate';
+export { WarningCircleIcon } from 'phosphor-react-native/src/icons/WarningCircle';
+export { WifiSlashIcon } from 'phosphor-react-native/src/icons/WifiSlash';
+export { WrenchIcon } from 'phosphor-react-native/src/icons/Wrench';
+export { XIcon } from 'phosphor-react-native/src/icons/X';
