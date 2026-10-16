@@ -4,7 +4,6 @@ import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, LinearTransition } from 'react-native-reanimated';
 
 import { CampaignRow } from '@/components/campaign/campaign-row';
-import { HowItWorksCard } from '@/components/campaign/how-it-works';
 import { LeadStoryCard, LeadStorySkeleton } from '@/components/campaign/lead-story-card';
 import { Rail, RailSkeleton } from '@/components/campaign/rail';
 import { Screen } from '@/components/ui/screen';
@@ -12,20 +11,17 @@ import { SkeletonGroup } from '@/components/ui/skeleton';
 import { ErrorState } from '@/components/ui/states';
 import { Text } from '@/components/ui/text';
 import { campaignKeys, useHomeFeed } from '@/features/campaigns/queries';
-import { usePreferences } from '@/stores/preferences';
 import { duration, layout, space, spring } from '@/theme';
 
 const layoutTransition = LinearTransition.springify().damping(spring.gentle.damping).stiffness(spring.gentle.stiffness);
 
 /**
  * Home is a curated front page, not a catalogue: one lead story, then a few short sections.
- * No pitch, no duplicate CTAs. First-time visitors see a one-off "How it works" card.
+ * No pitch, no duplicate CTAs.
  */
 export default function HomeScreen() {
   const queryClient = useQueryClient();
   const home = useHomeFeed();
-  const introDismissed = usePreferences((s) => s.introDismissed);
-  const dismissIntro = usePreferences((s) => s.dismissIntro);
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {
@@ -52,12 +48,6 @@ export default function HomeScreen() {
           {home.data.lead && (
             <View style={styles.lead}>
               <LeadStoryCard campaign={home.data.lead} />
-            </View>
-          )}
-
-          {!introDismissed && (
-            <View style={styles.intro}>
-              <HowItWorksCard onDismiss={dismissIntro} />
             </View>
           )}
 
@@ -96,7 +86,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   top: { height: space.md },
   lead: { paddingHorizontal: layout.gutter, marginBottom: layout.sectionGap },
-  intro: { paddingHorizontal: layout.gutter, marginBottom: layout.sectionGap },
   section: { paddingHorizontal: layout.gutter, gap: space.md, marginBottom: layout.sectionGap },
   list: { gap: space.md },
 });

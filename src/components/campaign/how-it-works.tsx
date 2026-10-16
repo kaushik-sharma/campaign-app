@@ -1,5 +1,4 @@
 import { StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
 import { EstimatedReach } from '@/components/ui/estimate';
 import {
@@ -8,10 +7,9 @@ import {
   ShieldCheckIcon,
   type IconComponent,
 } from '@/components/ui/icons';
-import { PressableScale } from '@/components/ui/pressable-scale';
 import { Sheet } from '@/components/ui/sheet';
 import { Text } from '@/components/ui/text';
-import { duration, radius, space, useTheme } from '@/theme';
+import { space, useTheme } from '@/theme';
 
 type Step = { icon: IconComponent; title: string; body: string };
 
@@ -69,38 +67,6 @@ export function HowItWorksTimeline() {
   );
 }
 
-/**
- * First-run explainer on Home. The dashed outline marks it as temporary; "Don't show again"
- * removes it for good. It stays available from the Create tab's ⓘ button.
- */
-export function HowItWorksCard({ onDismiss }: { onDismiss: () => void }) {
-  const { colors } = useTheme();
-  return (
-    <Animated.View
-      entering={FadeIn.duration(duration.slow)}
-      exiting={FadeOut.duration(duration.fast)}
-      style={[styles.card, { borderColor: colors.borderStrong }]}>
-      <Text variant="title3" accessibilityRole="header">
-        How Campaigns works
-      </Text>
-      <HowItWorksTimeline />
-      <View style={[styles.footer, { borderTopColor: colors.border }]}>
-        <PressableScale
-          onPress={onDismiss}
-          haptic="selection"
-          scaleTo={0.96}
-          hitSlop={12}
-          accessibilityLabel="Don’t show again"
-          accessibilityHint="Hides this explainer. It stays available from the Create tab.">
-          <Text variant="footnote" color="textMuted" style={styles.dismiss}>
-            Don’t show again
-          </Text>
-        </PressableScale>
-      </View>
-    </Animated.View>
-  );
-}
-
 /** The same explainer on demand, from the Create tab's ⓘ button. */
 export function HowItWorksSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   return (
@@ -111,13 +77,6 @@ export function HowItWorksSheet({ open, onClose }: { open: boolean; onClose: () 
 }
 
 const styles = StyleSheet.create({
-  card: {
-    borderWidth: 1.5,
-    borderStyle: 'dashed',
-    borderRadius: radius.lg,
-    padding: space.xl,
-    gap: space.xl,
-  },
   step: { flexDirection: 'row', gap: space.md },
   rail: { alignItems: 'center', width: NODE },
   node: {
@@ -131,13 +90,4 @@ const styles = StyleSheet.create({
   content: { flex: 1, gap: 2, paddingTop: 1 },
   contentSpaced: { paddingBottom: space.xl },
   reach: { gap: 2, marginTop: space.sm },
-  footer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'flex-end',
-    borderTopWidth: StyleSheet.hairlineWidth,
-    paddingTop: space.md,
-    marginTop: -space.xs,
-  },
-  dismiss: { textDecorationLine: 'underline' },
 });
