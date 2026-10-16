@@ -149,6 +149,14 @@ export type Page<T> = {
   total: number;
 };
 
+export type FeedbackAnswer = 'no' | 'somewhat' | 'yes';
+
+/** Reader feedback on a campaign (PRD: did the visuals help, did the message change minds). */
+export type CampaignFeedback = {
+  visualsEncouraged: FeedbackAnswer;
+  changedMind: FeedbackAnswer;
+};
+
 /** Server-curated Home sections. A campaign appears in at most one section. */
 export type HomeFeed = {
   lead: CampaignSummary | null;

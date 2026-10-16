@@ -1,6 +1,6 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import type { CampaignListParams } from '@/domain/types';
+import type { CampaignFeedback, CampaignListParams } from '@/domain/types';
 import { services } from '@/services';
 
 type ListParams = Omit<CampaignListParams, 'cursor'>;
@@ -12,6 +12,7 @@ export const campaignKeys = {
   featured: () => [...campaignKeys.all, 'featured'] as const,
   home: () => [...campaignKeys.all, 'home'] as const,
   detail: (id: string) => [...campaignKeys.all, 'detail', id] as const,
+  feedback: (id: string) => [...campaignKeys.all, 'feedback', id] as const,
 };
 
 export function useCampaignFeed(params: ListParams = {}) {
@@ -42,5 +43,20 @@ export function useHomeFeed() {
   return useQuery({
     queryKey: campaignKeys.home(),
     queryFn: ({ signal }) => services.campaigns.home({ signal }),
+  });
+}
+
+export function useCampaignFeedback(id: string) {
+  return useQuery({
+    queryKey: campaignKeys.feedback(id),
+    queryFn: ({ signal }) => services.campaigns.getFeedback(id, { signal }),
+  });
+}
+
+export function useSubmitFeedback(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (feedback: CampaignFeedback) => services.campaigns.submitFeedback(id, feedback),
+    onSuccess: (saved) => queryClient.setQueryData(campaignKeys.feedback(id), saved),
   });
 }

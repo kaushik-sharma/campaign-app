@@ -9,11 +9,11 @@ import type {
 } from '@/domain/types';
 
 import { campaignCovers } from './images';
+import { stories } from './stories';
 
 /**
  * Seed campaigns: demo data. Figures are fixed so the same campaign shows the same numbers on
  * every screen. Dates are relative to app launch so "days left" stays believable.
- * Stories and sources are filled in by Phase 2.
  */
 
 const DAY = 86_400_000;
@@ -269,7 +269,7 @@ const seeds: Seed[] = [
     id: 'local-pantry',
     title: 'Every Neighbor Fed: Find Your Local Pantry',
     summary:
-      'Nearly half of eligible households never visit a food pantry, often because they don’t know one is nearby. This campaign mapped every pantry within a mile.',
+      'Many families who qualify for free food never visit a pantry, often because they don’t know one is nearby. This campaign mapped every pantry on the East Side.',
     category: 'community',
     creator: {
       id: 'c-eastside-aid',
@@ -339,7 +339,7 @@ const seeds: Seed[] = [
     id: 'buy-local-winter',
     title: 'Buy Local This Winter: Small Shops Need You',
     summary:
-      'Independent shops earn a third of their year between November and January. A reminder that the gift you need is probably on your own street.',
+      'Independent shops depend on the holiday season more than any other time of year. A reminder that the gift you need is probably on your own street.',
     category: 'business',
     creator: {
       id: 'c-downtown-merchants',
@@ -409,7 +409,7 @@ const seeds: Seed[] = [
     id: 'heat-check-elders',
     title: 'Heat Waves Kill Quietly. Check on Your Elders.',
     summary:
-      'Most heat deaths happen indoors, alone. A two-minute phone call during a heat advisory can save a life.',
+      'Heat is one of the deadliest kinds of weather, and older people living alone are most at risk. A two-minute phone call during a heat advisory can help.',
     category: 'environment',
     creator: {
       id: 'c-cool-blocks',
@@ -435,7 +435,7 @@ const seeds: Seed[] = [
     },
     ad: {
       headline: 'Heat advisory today? Make one call.',
-      description: 'Most heat deaths happen indoors, alone. A check-in can save a life.',
+      description: 'Older neighbours living alone are most at risk. A check-in helps.',
       callToAction: 'What to ask',
     },
     suggestedActions: ['Set a heat-advisory reminder', 'Call an older neighbour today'],
@@ -480,7 +480,7 @@ const seeds: Seed[] = [
     id: 'bees-need-weeds',
     title: 'Bees Need Weeds: Let Your Lawn Grow',
     summary:
-      'Lawns that are mowed every three weeks instead of weekly support far more bees. Less work, more pollinators.',
+      'In a Massachusetts study, lawns mowed every two weeks had more bees than lawns mowed weekly. Less work, more pollinators.',
     category: 'science',
     creator: {
       id: 'c-pollinator-project',
@@ -509,7 +509,7 @@ const seeds: Seed[] = [
       description: 'Why a slightly wilder lawn makes a big difference for pollinators.',
       callToAction: 'Learn more',
     },
-    suggestedActions: ['Mow every three weeks this summer', 'Plant one native flower'],
+    suggestedActions: ['Mow every two weeks this summer', 'Leave clover and dandelions to flower'],
   },
   {
     id: 'money-before-18',
@@ -728,14 +728,14 @@ function toCampaign(seed: Seed): Campaign {
     fundingEndsAt: new Date(fundingEndsAt).toISOString(),
     featured: seed.featured ?? false,
     trendScore: seed.trend,
-    story: [],
-    sources: [],
+    story: stories[seed.id]?.story ?? [],
+    sources: stories[seed.id]?.sources ?? [],
     suggestedActions: seed.suggestedActions,
     audience: seed.audience,
     ad: seed.ad,
     submittedAt: new Date(openedAt - 6 * DAY).toISOString(),
     history: buildHistory(seed.status, openedAt, fundingEndsAt),
-    updates: [],
+    updates: stories[seed.id]?.updates ?? [],
   };
 }
 

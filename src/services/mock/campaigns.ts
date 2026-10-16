@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 import { demo } from '@/config/demo';
 import { isPublic } from '@/domain/lifecycle';
 import { fundingProgress } from '@/domain/money';
@@ -14,6 +16,9 @@ import type { CampaignService } from '../contracts';
 import { ServiceError } from '../errors';
 import { db } from './db';
 import { simulateRequest } from './network';
+
+const answer = z.enum(['no', 'somewhat', 'yes']);
+const feedbackSchema = z.object({ visualsEncouraged: answer, changedMind: answer });
 
 const ENDING_SOON_DAYS = 7;
 const JUST_LAUNCHED_DAYS = 14;
@@ -186,5 +191,24 @@ export const mockCampaignService: CampaignService = {
       }
       return campaign;
     }, opts);
+  },
+
+  getFeedback(id, opts) {
+    return simulateRequest(async () => {
+      await db.ready();
+      return db.getFeedback(id);
+    }, opts);
+  },
+
+  submitFeedback(id, feedback) {
+    return simulateRequest(async () => {
+      await db.ready();
+      const parsed = feedbackSchema.safeParse(feedback);
+      if (!parsed.success) throw new ServiceError('validation', 'Choose an answer for both questions');
+      const campaign = db.tables.campaigns.get(id);
+      if (!campaign || !isPublic(campaign.status)) throw new ServiceError('not-found', 'Campaign not found');
+      db.setFeedback(id, parsed.data);
+      return parsed.data;
+    });
   },
 };

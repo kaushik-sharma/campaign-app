@@ -8,6 +8,7 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { scheduleOnRN } from 'react-native-worklets';
 
 import { layout, space, useTheme } from '@/theme';
 
@@ -16,6 +17,7 @@ import { ArrowLeftIcon } from './icons';
 import { Text } from './text';
 
 const COMPACT_HEADER = 48;
+const END_THRESHOLD = 600;
 const LARGE_TITLE = 52;
 
 type Props = {
@@ -34,6 +36,8 @@ type Props = {
   headerRight?: ReactNode;
   onRefresh?: () => void;
   refreshing?: boolean;
+  /** Called (possibly repeatedly) when the user scrolls near the end. Guard against duplicates. */
+  onEndReached?: () => void;
   contentStyle?: StyleProp<ViewStyle>;
 };
 
@@ -50,6 +54,7 @@ export function Screen({
   headerRight,
   onRefresh,
   refreshing = false,
+  onEndReached,
   contentStyle,
 }: Props) {
   const { colors } = useTheme();
@@ -58,6 +63,9 @@ export function Screen({
 
   const onScroll = useAnimatedScrollHandler((e) => {
     scrollY.set(e.contentOffset.y);
+    if (onEndReached && e.contentOffset.y + e.layoutMeasurement.height > e.contentSize.height - END_THRESHOLD) {
+      scheduleOnRN(onEndReached);
+    }
   });
 
   const bgRange = brand ? [0, 16] : [LARGE_TITLE - 24, LARGE_TITLE];

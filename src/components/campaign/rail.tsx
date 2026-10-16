@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeInRight } from 'react-native-reanimated';
 
@@ -8,8 +9,9 @@ import { Text } from '@/components/ui/text';
 import { categoryLabel } from '@/domain/categories';
 import { fundingProgress } from '@/domain/money';
 import type { CampaignSummary } from '@/domain/types';
+import { useOpenCampaign } from '@/features/campaigns/navigation';
 import { formatPercent, formatTimeLeft } from '@/lib/format';
-import { layout, motion, space, spring } from '@/theme';
+import { layout, motion, radius, space, spring } from '@/theme';
 
 import { CoverImage } from './cover-image';
 
@@ -26,6 +28,8 @@ function metaLine(c: CampaignSummary, variant: Variant): string {
 
 function RailCard({ campaign, variant, index }: { campaign: CampaignSummary; variant: Variant; index: number }) {
   const progress = fundingProgress(campaign.raisedCents, campaign.goalCents);
+  const open = useOpenCampaign();
+  const coverRef = useRef<View>(null);
   return (
     <Animated.View
       entering={FadeInRight.delay(Math.min(index, motion.staggerCap) * motion.staggerMs + 120)
@@ -34,9 +38,12 @@ function RailCard({ campaign, variant, index }: { campaign: CampaignSummary; var
         .stiffness(spring.gentle.stiffness)}>
       <Card
         padded={false}
+        onPress={() => open(campaign, { cover: coverRef, radius: radius.lg })}
         accessibilityLabel={`${campaign.title}, by ${campaign.creator.name}. ${metaLine(campaign, variant)}.`}
         style={styles.card}>
-        <CoverImage image={campaign.cover} category={campaign.category} style={styles.cover} />
+        <View ref={coverRef} collapsable={false}>
+          <CoverImage image={campaign.cover} category={campaign.category} style={styles.cover} />
+        </View>
         <View style={styles.body}>
           <Text variant="overline" color="textMuted" numberOfLines={1}>
             {categoryLabel(campaign.category)}

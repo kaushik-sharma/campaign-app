@@ -51,6 +51,13 @@ function RootNavigator() {
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="auth" options={{ presentation: 'modal' }} />
+        {/* Opened from a card with a hero transition: fade, so the flying cover isn't pushed sideways. */}
+        <Stack.Screen
+          name="campaign/[id]/index"
+          options={({ route }) => ({
+            animation: (route.params as { hero?: string } | undefined)?.hero ? 'fade' : 'default',
+          })}
+        />
       </Stack>
       <ToastHost />
     </NavigationThemeProvider>

@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Card } from '@/components/ui/card';
@@ -7,25 +8,30 @@ import { Text } from '@/components/ui/text';
 import { categoryLabel } from '@/domain/categories';
 import { fundingProgress } from '@/domain/money';
 import type { CampaignSummary } from '@/domain/types';
+import { useOpenCampaign } from '@/features/campaigns/navigation';
 import { formatMoney, formatPercent, formatTimeLeft } from '@/lib/format';
 import { radius, space } from '@/theme';
 
 import { CoverImage } from './cover-image';
 
-type Props = { campaign: CampaignSummary; onPress?: () => void };
+type Props = { campaign: CampaignSummary };
 
 /** Home's lead story: one campaign given editorial weight. The message comes first, money second. */
-export function LeadStoryCard({ campaign, onPress }: Props) {
+export function LeadStoryCard({ campaign }: Props) {
+  const open = useOpenCampaign();
+  const coverRef = useRef<View>(null);
   const progress = fundingProgress(campaign.raisedCents, campaign.goalCents);
   const timeLeft = formatTimeLeft(campaign.fundingEndsAt);
 
   return (
     <Card
       padded={false}
-      onPress={onPress}
+      onPress={() => open(campaign, { cover: coverRef })}
       accessibilityLabel={`${campaign.title}. ${categoryLabel(campaign.category)}, by ${campaign.creator.name}. ${formatPercent(progress)} funded.`}
       style={styles.card}>
-      <CoverImage image={campaign.cover} category={campaign.category} style={styles.cover} />
+      <View ref={coverRef} collapsable={false}>
+        <CoverImage image={campaign.cover} category={campaign.category} style={styles.cover} />
+      </View>
       <View style={styles.body}>
         <Text variant="overline" color="textMuted" numberOfLines={1}>
           {categoryLabel(campaign.category)} · {campaign.creator.name}

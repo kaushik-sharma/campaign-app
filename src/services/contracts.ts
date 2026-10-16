@@ -8,6 +8,7 @@
  */
 import type {
   Campaign,
+  CampaignFeedback,
   CampaignListParams,
   CampaignSummary,
   HomeFeed,
@@ -36,6 +37,9 @@ export interface CampaignService {
   /** Curated Home sections, de-duplicated server-side. */
   home(opts?: Opts): Promise<HomeFeed>;
   get(id: string, opts?: Opts): Promise<Campaign>;
+  /** The current reader's feedback on a campaign, if they gave any. */
+  getFeedback(id: string, opts?: Opts): Promise<CampaignFeedback | null>;
+  submitFeedback(id: string, feedback: CampaignFeedback): Promise<CampaignFeedback>;
 }
 
 export type NetworkSettings = {

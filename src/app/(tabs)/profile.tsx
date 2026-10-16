@@ -8,6 +8,15 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Divider } from '@/components/ui/divider';
 import {
+  BookOpenIcon,
+  EnvelopeSimpleIcon,
+  FileTextIcon,
+  HandshakeIcon,
+  InfoIcon,
+  LockSimpleIcon,
+  QuestionIcon,
+  ShieldCheckIcon,
+  type IconComponent,
   MoonIcon,
   SignOutIcon,
   UserCircleIcon,
@@ -21,11 +30,24 @@ import { Section } from '@/components/ui/section';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Switch } from '@/components/ui/switch';
 import { Text } from '@/components/ui/text';
+import type { InfoSlug } from '@/content/info';
 import { useAuth } from '@/features/auth/auth-provider';
 import { formatDate } from '@/lib/format';
 import { usePreferences, type AppearancePreference } from '@/stores/preferences';
 import { toast } from '@/stores/toast';
 import { layout, space, useTheme } from '@/theme';
+
+const HELP_LINKS: { slug: InfoSlug; title: string; icon: IconComponent }[] = [
+  { slug: 'how-it-works', title: 'How it works', icon: InfoIcon },
+  { slug: 'faq', title: 'FAQs', icon: QuestionIcon },
+  { slug: 'help', title: 'Help', icon: QuestionIcon },
+  { slug: 'contact', title: 'Contact', icon: EnvelopeSimpleIcon },
+  { slug: 'about', title: 'About Campaigns', icon: BookOpenIcon },
+  { slug: 'partners', title: 'Distribution partners', icon: HandshakeIcon },
+  { slug: 'guidelines', title: 'Community guidelines', icon: ShieldCheckIcon },
+  { slug: 'terms', title: 'Terms of use', icon: FileTextIcon },
+  { slug: 'privacy', title: 'Privacy', icon: LockSimpleIcon },
+];
 
 function AccountHeader() {
   const { session, signOut } = useAuth();
@@ -134,6 +156,17 @@ export default function ProfileScreen() {
               <Switch value={showName} onValueChange={setShowName} accessibilityLabel="Show my name when I back" />
             }
           />
+        </Card>
+      </Section>
+
+      <Section title="Help & info">
+        <Card padded={false}>
+          {HELP_LINKS.map((link, i) => (
+            <View key={link.slug}>
+              {i > 0 && <Divider inset={layout.cardPadding} />}
+              <ListRow icon={link.icon} title={link.title} onPress={() => router.push({ pathname: '/info/[slug]', params: { slug: link.slug } })} />
+            </View>
+          ))}
         </Card>
       </Section>
 

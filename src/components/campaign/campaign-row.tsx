@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
@@ -9,6 +10,7 @@ import { Text } from '@/components/ui/text';
 import { categoryLabel, creatorTypeLabels } from '@/domain/categories';
 import { fundingProgress } from '@/domain/money';
 import type { CampaignSummary } from '@/domain/types';
+import { useOpenCampaign } from '@/features/campaigns/navigation';
 import { formatMoney, formatPercent } from '@/lib/format';
 import { motion, radius, space, spring } from '@/theme';
 
@@ -18,22 +20,25 @@ type Props = {
   campaign: CampaignSummary;
   /** Position in the list, used to stagger the entrance of the first few rows. */
   index?: number;
-  onPress?: () => void;
   /** What sits opposite the amount: the lifecycle status, or the percent funded when the status is implied. */
   trailing?: 'status' | 'percent';
 };
 
 /** Compact campaign card: category tint tile, title, creator, funding progress. */
-export function CampaignRow({ campaign, index = 0, onPress, trailing = 'status' }: Props) {
+export function CampaignRow({ campaign, index = 0, trailing = 'status' }: Props) {
+  const open = useOpenCampaign();
+  const coverRef = useRef<View>(null);
   const progress = fundingProgress(campaign.raisedCents, campaign.goalCents);
   const delay = Math.min(index, motion.staggerCap) * motion.staggerMs;
 
   return (
     <Animated.View
       entering={FadeInDown.delay(delay).springify().damping(spring.gentle.damping).stiffness(spring.gentle.stiffness)}>
-      <Card onPress={onPress} accessibilityLabel={`${campaign.title}, by ${campaign.creator.name}`}>
+      <Card onPress={() => open(campaign, { cover: coverRef, radius: radius.md })} accessibilityLabel={`${campaign.title}, by ${campaign.creator.name}`}>
         <View style={styles.top}>
-          <CoverImage image={campaign.cover} category={campaign.category} style={styles.tile} />
+          <View ref={coverRef} collapsable={false}>
+            <CoverImage image={campaign.cover} category={campaign.category} style={styles.tile} />
+          </View>
           <View style={styles.text}>
             <Text variant="overline" color="textMuted" numberOfLines={1}>
               {categoryLabel(campaign.category)}

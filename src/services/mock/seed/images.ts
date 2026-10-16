@@ -114,3 +114,31 @@ export const campaignCovers: Record<string, ImageAsset> = {
     credit: 'Barn Images via stocksnap (CC0)',
   },
 };
+
+/** Inline story photos (CC0, via Openverse). */
+export const storyImages: Record<string, ImageAsset> = {
+  'riverside-wetlands': {
+    source: require('@/assets/images/campaigns/riverside-wetlands-2.jpg'),
+    alt: 'A white egret wading in shallow water',
+    blurhash: 'LLCPt^xZROIp~8ofs.WCNbIqxZxt',
+    credit: 'World Wildlife via StockSnap (CC0)',
+  },
+  'night-sky': {
+    source: require('@/assets/images/campaigns/night-sky-2.jpg'),
+    alt: 'A city skyline and highway glowing with artificial light at night',
+    blurhash: 'L56*p^.9E1$~0NRP%LIpnOWAoz%2',
+    credit: 'Joey Kyber via StockSnap (CC0)',
+  },
+  'bees-need-weeds': {
+    source: require('@/assets/images/campaigns/bees-need-weeds-2.jpg'),
+    alt: 'Dandelions flowering in an unmowed lawn',
+    blurhash: 'LAD,PL%GD.Ne~8~2RlE8v~?9${Ia',
+    credit: 'Mary via StockSnap (CC0)',
+  },
+  'lead-pipes': {
+    source: require('@/assets/images/campaigns/lead-pipes-2.jpg'),
+    alt: 'A stack of old, rusted metal pipes',
+    blurhash: 'L7Gs_GS4EkOr}oEOs:%0}m$%9vEg',
+    credit: 'Bob Richards via StockSnap (CC0)',
+  },
+};

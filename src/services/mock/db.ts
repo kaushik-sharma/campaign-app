@@ -1,4 +1,4 @@
-import type { Campaign } from '@/domain/types';
+import type { Campaign, CampaignFeedback } from '@/domain/types';
 import { readJSON, removeKeys, writeJSON } from '@/lib/storage';
 
 import { seedCampaigns } from './seed/campaigns';
@@ -12,9 +12,11 @@ const OVERLAY_KEY = 'mockdb:v1';
 type Overlay = {
   /** Field-level changes to seeded or user-created campaigns, keyed by id. */
   campaignPatches: Record<string, Partial<Campaign>>;
+  /** Reader feedback per campaign. Keyed by campaign id (one reader per device in the mock). */
+  feedback: Record<string, CampaignFeedback>;
 };
 
-const emptyOverlay = (): Overlay => ({ campaignPatches: {} });
+const emptyOverlay = (): Overlay => ({ campaignPatches: {}, feedback: {} });
 
 type Tables = {
   campaigns: Map<string, Campaign>;
@@ -57,6 +59,15 @@ export const db = {
     if (!current) return;
     tables.campaigns.set(id, { ...current, ...patch });
     overlay.campaignPatches[id] = { ...overlay.campaignPatches[id], ...patch };
+    schedulePersist();
+  },
+
+  getFeedback(id: string): CampaignFeedback | null {
+    return overlay.feedback[id] ?? null;
+  },
+
+  setFeedback(id: string, feedback: CampaignFeedback) {
+    overlay.feedback[id] = feedback;
     schedulePersist();
   },
 

@@ -41,7 +41,7 @@ Everything must run in **Expo Go**. Not in Expo Go → worked around:
 | # | Phase | Est. | Status |
 |---|---|---|---|
 | 1 | Foundation: design system, motion primitives, tab shell, mock services, dev panel | 5h | done |
-| 2 | Home, Explore, Campaign Detail (+ hero transition, imagery, stories) | 8h | |
+| 2 | Home, Explore, Campaign Detail (+ hero transition, imagery, stories) | 8h | done |
 | 3 | Back a Campaign (amount → review → simulated checkout → result), receipts, follow/save | 4h | |
 | 4 | 5-step creation (Basics → Story → Campaign & Ad Visuals → Reach → Submit), voice/AI demo, autosave, lifecycle simulator | 8.5h | |
 | 5 | Activity, Profile, Creator Dashboard, Reports, info pages | 5.5h | |

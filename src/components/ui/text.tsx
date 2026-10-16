@@ -1,4 +1,4 @@
-import { Text as RNText, type TextProps as RNTextProps } from 'react-native';
+import { Platform, Text as RNText, type TextProps as RNTextProps } from 'react-native';
 
 import { typography, useTheme, type ColorTokens, type TypeVariant } from '@/theme';
 
@@ -23,6 +23,13 @@ export type TextProps = RNTextProps & {
   tabular?: boolean;
 };
 
+/**
+ * iOS New Architecture drops the last line of a wrapped Text when its box crosses y = 2048pt in
+ * scroll content on 3x screens (Yoga float rounding; react/react-native#58970, fixed upstream in
+ * Yoga #2037). Raising lineHeight a hair above the pixel grid absorbs the rounding error.
+ */
+const IOS_LINE_HEIGHT_SLACK = 0.001;
+
 export function Text({
   variant = 'body',
   color = 'text',
@@ -38,6 +45,7 @@ export function Text({
       maxFontSizeMultiplier={maxFontSizeMultiplier}
       style={[
         typography[variant],
+        Platform.OS === 'ios' && { lineHeight: typography[variant].lineHeight + IOS_LINE_HEIGHT_SLACK },
         { color: colors[color] },
         align && { textAlign: align },
         tabular && { fontVariant: ['tabular-nums'] },

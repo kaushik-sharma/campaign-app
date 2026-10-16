@@ -1,0 +1,103 @@
+import { StyleSheet, View } from 'react-native';
+
+import { AnimatedNumber } from '@/components/ui/animated-number';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { DemoBadge, EstimatedReach } from '@/components/ui/estimate';
+import { IconButton } from '@/components/ui/icon-button';
+import { ShareNetworkIcon } from '@/components/ui/icons';
+import { ProgressBar } from '@/components/ui/progress-bar';
+import { Text } from '@/components/ui/text';
+import { acceptsContributions, statusMeta } from '@/domain/lifecycle';
+import { fundingProgress } from '@/domain/money';
+import type { Campaign } from '@/domain/types';
+import { formatInteger, formatMoney, formatPercent, formatTimeLeft } from '@/lib/format';
+import { space, useTheme } from '@/theme';
+
+type Props = {
+  campaign: Campaign;
+  onBack: () => void;
+  onShare: () => void;
+};
+
+function Stat({ value, label }: { value: string; label: string }) {
+  return (
+    <View style={styles.stat}>
+      <Text variant="bodyStrong" tabular>
+        {value}
+      </Text>
+      <Text variant="caption" color="textMuted">
+        {label}
+      </Text>
+    </View>
+  );
+}
+
+/** Funding progress, estimated reach and the primary action. Only funding campaigns can be backed. */
+export function FundingPanel({ campaign, onBack, onShare }: Props) {
+  const { colors } = useTheme();
+  const progress = fundingProgress(campaign.raisedCents, campaign.goalCents);
+  const canBack = acceptsContributions(campaign.status);
+  const timeLeft = campaign.status === 'funding' ? formatTimeLeft(campaign.fundingEndsAt) : null;
+
+  return (
+    <Card style={styles.card}>
+      <View style={styles.top}>
+        <View style={styles.amounts}>
+          <AnimatedNumber value={campaign.raisedCents} format="money" variant="amount" />
+          <Text variant="subhead" color="textMuted">
+            raised of {formatMoney(campaign.goalCents)} goal
+          </Text>
+        </View>
+        <DemoBadge />
+      </View>
+
+      <ProgressBar value={progress} height={8} delay={350} accessibilityLabel={`${formatPercent(progress)} funded`} />
+
+      <View style={[styles.stats, { borderColor: colors.border }]}>
+        <Stat value={formatPercent(progress)} label="funded" />
+        <Stat value={formatInteger(campaign.backerCount)} label="backers" />
+        <Stat value={timeLeft ?? statusMeta[campaign.status].label} label={timeLeft ? 'to back' : 'status'} />
+      </View>
+
+      <View style={styles.reach}>
+        <Text variant="caption" color="textMuted">
+          If fully funded, the ads reach
+        </Text>
+        <EstimatedReach amountCents={campaign.goalCents} />
+      </View>
+
+      {canBack ? (
+        <View style={styles.actions}>
+          <Button label="Back this campaign" size="lg" onPress={onBack} style={styles.primary} />
+          <IconButton icon={ShareNetworkIcon} accessibilityLabel="Share campaign" variant="tinted" size={56} onPress={onShare} />
+        </View>
+      ) : (
+        <View style={styles.closed}>
+          <Text variant="subhead" color="textMuted" style={styles.closedText}>
+            {statusMeta[campaign.status].next}
+          </Text>
+          <IconButton icon={ShareNetworkIcon} accessibilityLabel="Share campaign" variant="tinted" size={44} onPress={onShare} />
+        </View>
+      )}
+    </Card>
+  );
+}
+
+const styles = StyleSheet.create({
+  card: { gap: space.lg },
+  top: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: space.md },
+  amounts: { gap: 2, flex: 1 },
+  stats: {
+    flexDirection: 'row',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    paddingVertical: space.md,
+  },
+  stat: { flex: 1, gap: 2 },
+  reach: { gap: 2 },
+  actions: { flexDirection: 'row', gap: space.sm, alignItems: 'center' },
+  primary: { flex: 1, alignSelf: 'auto' },
+  closed: { flexDirection: 'row', alignItems: 'center', gap: space.md },
+  closedText: { flex: 1 },
+});
