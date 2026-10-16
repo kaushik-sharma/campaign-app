@@ -177,3 +177,71 @@ export type Session = {
   token: string;
   expiresAt: ISODate;
 };
+
+/** What the demo card does when charged. Real payments report these as provider events. */
+export type SimulatedOutcome = 'approve' | 'pending' | 'decline';
+
+export type ContributionStatus = 'succeeded' | 'pending' | 'failed' | 'cancelled';
+
+export type CheckoutInput = {
+  campaignId: string;
+  amountCents: Cents;
+  /** Required for guests; ignored when signed in (the account email is used). */
+  email?: string;
+  /** Show the backer's name publicly. Private by default. */
+  showName: boolean;
+  /** Same key on a retry returns the original result instead of charging twice. */
+  idempotencyKey: string;
+  /** Demo card behaviour, or 'cancel' when the backer abandons payment. */
+  simulate: SimulatedOutcome | 'cancel';
+};
+
+export type Contribution = {
+  id: string;
+  receiptNumber: string;
+  campaignId: string;
+  campaignTitle: string;
+  status: ContributionStatus;
+  amountCents: Cents;
+  processingFeeCents: Cents;
+  totalChargeCents: Cents;
+  platformFeeCents: Cents;
+  adBudgetCents: Cents;
+  userId: string | null;
+  email: string;
+  /** The name shown publicly, or null for an anonymous backer. */
+  publicName: string | null;
+  cardLast4: string;
+  createdAt: ISODate;
+  /** Set when a pending payment is confirmed or a payment fails. */
+  settledAt: ISODate | null;
+  failureReason: string | null;
+  /** Campaign funding immediately before and after this contribution counted. Success only. */
+  funding: { beforeCents: Cents; afterCents: Cents; goalCents: Cents } | null;
+};
+
+export type ActivityKind =
+  | 'payment-succeeded'
+  | 'payment-pending'
+  | 'payment-failed'
+  | 'payment-cancelled'
+  | 'milestone'
+  | 'goal-reached';
+
+export type ActivityEvent = {
+  id: string;
+  kind: ActivityKind;
+  campaignId: string;
+  title: string;
+  body: string;
+  at: ISODate;
+  read: boolean;
+  /** Opens the receipt when set; otherwise the campaign. */
+  contributionId?: string;
+};
+
+/** The current reader's relationship to a campaign. */
+export type Engagement = {
+  following: boolean;
+  saved: boolean;
+};

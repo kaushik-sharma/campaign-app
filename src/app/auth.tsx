@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
@@ -16,6 +16,7 @@ import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
 import { demo } from '@/config/demo';
 import { useAuth } from '@/features/auth/auth-provider';
+import { authReasons, clearPendingAuthAction, type AuthReason } from '@/features/auth/require-auth';
 import { haptics } from '@/lib/haptics';
 import { describeError, isServiceError } from '@/services';
 import { toast } from '@/stores/toast';
@@ -36,7 +37,11 @@ export default function AuthScreen() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const { signIn, signUp } = useAuth();
+  const { reason } = useLocalSearchParams<{ reason?: AuthReason }>();
   const [mode, setMode] = useState<Mode>('sign-in');
+
+  // Closing without signing in drops the action that opened this screen.
+  useEffect(() => clearPendingAuthAction, []);
   const [formError, setFormError] = useState<string | null>(null);
 
   const { control, handleSubmit, setError, setValue, clearErrors, formState } = useForm<FormValues>({
@@ -81,8 +86,8 @@ export default function AuthScreen() {
             {mode === 'sign-in' ? 'Welcome back' : 'Create your account'}
           </Text>
           <Text variant="body" color="textMuted">
-            Browsing never needs an account. Sign in to follow campaigns, keep receipts together and
-            create campaigns.
+            {(reason && authReasons[reason]) ??
+              'Browsing and backing never need an account. Sign in to follow campaigns, keep receipts together and create campaigns.'}
           </Text>
         </View>
 

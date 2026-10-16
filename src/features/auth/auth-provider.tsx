@@ -3,6 +3,8 @@ import { createContext, use, useEffect, useState, type ReactNode } from 'react';
 import type { Session } from '@/domain/types';
 import { services } from '@/services';
 
+import { runPendingAuthAction } from './pending-action';
+
 type AuthState = {
   /** `undefined` while the persisted session is being restored. */
   session: Session | null | undefined;
@@ -22,7 +24,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void services.auth.getSession().then((s) => {
       if (active) setSession(s);
     });
-    const unsubscribe = services.auth.onAuthStateChange(setSession);
+    const unsubscribe = services.auth.onAuthStateChange((next) => {
+      setSession(next);
+      if (next) runPendingAuthAction();
+    });
     return () => {
       active = false;
       unsubscribe();

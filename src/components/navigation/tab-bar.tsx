@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/icons';
 import { PressableScale } from '@/components/ui/pressable-scale';
 import { Text } from '@/components/ui/text';
+import { useActivity } from '@/features/activity/queries';
 import { haptics } from '@/lib/haptics';
 import { layout, radius, spring, useTheme } from '@/theme';
 
@@ -32,6 +33,7 @@ const INDICATOR_WIDTH = 56;
  */
 export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
   const { colors } = useTheme();
+  const unread = useActivity().data?.some((e) => !e.read) ?? false;
   const itemWidth = useSharedValue(0);
   const position = useSharedValue(state.index);
 
@@ -79,13 +81,16 @@ export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
               key={route.key}
               accessibilityRole="tab"
               accessibilityState={{ selected: focused }}
-              accessibilityLabel={tab.label}
+              accessibilityLabel={route.name === 'activity' && unread ? `${tab.label}, new items` : tab.label}
               onPress={onPress}
               onLongPress={() => navigation.emit({ type: 'tabLongPress', target: route.key })}
               scaleTo={0.9}
               style={styles.item}>
               <View style={styles.iconSlot}>
                 <Icon size={24} color={focused ? colors.primary : colors.textMuted} weight={focused ? 'fill' : 'regular'} />
+                {route.name === 'activity' && unread && (
+                  <View style={[styles.badge, { backgroundColor: colors.danger, borderColor: colors.surface }]} />
+                )}
               </View>
               <Text
                 variant="caption"
@@ -107,6 +112,7 @@ const styles = StyleSheet.create({
   items: { flex: 1, flexDirection: 'row' },
   item: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 2 },
   iconSlot: { height: 32, justifyContent: 'center', alignItems: 'center' },
+  badge: { position: 'absolute', top: 3, right: -3, width: 10, height: 10, borderRadius: 5, borderWidth: 2 },
   indicator: {
     position: 'absolute',
     top: (layout.tabBarHeight - 32 - 16 - 2) / 2,

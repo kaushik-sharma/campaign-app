@@ -4,8 +4,6 @@ import { AnimatedNumber } from '@/components/ui/animated-number';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { DemoBadge, EstimatedReach } from '@/components/ui/estimate';
-import { IconButton } from '@/components/ui/icon-button';
-import { ShareNetworkIcon } from '@/components/ui/icons';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { Text } from '@/components/ui/text';
 import { acceptsContributions, statusMeta } from '@/domain/lifecycle';
@@ -14,10 +12,11 @@ import type { Campaign } from '@/domain/types';
 import { formatInteger, formatMoney, formatPercent, formatTimeLeft } from '@/lib/format';
 import { space, useTheme } from '@/theme';
 
+import { FollowButton } from '../engagement-buttons';
+
 type Props = {
   campaign: Campaign;
   onBack: () => void;
-  onShare: () => void;
 };
 
 function Stat({ value, label }: { value: string; label: string }) {
@@ -34,7 +33,7 @@ function Stat({ value, label }: { value: string; label: string }) {
 }
 
 /** Funding progress, estimated reach and the primary action. Only funding campaigns can be backed. */
-export function FundingPanel({ campaign, onBack, onShare }: Props) {
+export function FundingPanel({ campaign, onBack }: Props) {
   const { colors } = useTheme();
   const progress = fundingProgress(campaign.raisedCents, campaign.goalCents);
   const canBack = acceptsContributions(campaign.status);
@@ -70,14 +69,14 @@ export function FundingPanel({ campaign, onBack, onShare }: Props) {
       {canBack ? (
         <View style={styles.actions}>
           <Button label="Back this campaign" size="lg" onPress={onBack} style={styles.primary} />
-          <IconButton icon={ShareNetworkIcon} accessibilityLabel="Share campaign" variant="tinted" size={56} onPress={onShare} />
+          <FollowButton campaignId={campaign.id} size={56} />
         </View>
       ) : (
         <View style={styles.closed}>
           <Text variant="subhead" color="textMuted" style={styles.closedText}>
             {statusMeta[campaign.status].next}
           </Text>
-          <IconButton icon={ShareNetworkIcon} accessibilityLabel="Share campaign" variant="tinted" size={44} onPress={onShare} />
+          <FollowButton campaignId={campaign.id} />
         </View>
       )}
     </Card>

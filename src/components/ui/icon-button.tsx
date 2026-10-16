@@ -1,6 +1,8 @@
+import { useEffect, useRef } from 'react';
 import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue, withSequence, withSpring } from 'react-native-reanimated';
 
-import { layout, radius, useTheme } from '@/theme';
+import { layout, radius, spring, useTheme } from '@/theme';
 
 import type { IconComponent } from './icons';
 import { PressableScale } from './pressable-scale';
@@ -13,6 +15,8 @@ type Props = {
   variant?: 'plain' | 'tinted' | 'surface';
   size?: number;
   disabled?: boolean;
+  /** Toggle buttons (follow, save): filled accent icon, and a pop when switched on. */
+  active?: boolean;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -23,9 +27,20 @@ export function IconButton({
   variant = 'plain',
   size = 40,
   disabled,
+  active,
   style,
 }: Props) {
   const { colors, shadow } = useTheme();
+  const pop = useSharedValue(1);
+  const wasActive = useRef(active);
+  useEffect(() => {
+    if (active && wasActive.current === false) {
+      pop.set(withSequence(withSpring(1.25, { ...spring.snappy, stiffness: 600 }), withSpring(1, spring.celebrate)));
+    }
+    wasActive.current = active;
+  }, [active, pop]);
+  const iconStyle = useAnimatedStyle(() => ({ transform: [{ scale: pop.get() }] }));
+  const iconColor = disabled ? colors.textDisabled : active ? colors.primary : colors.text;
   const bg =
     variant === 'tinted' ? colors.surfaceSunken : variant === 'surface' ? colors.surface : 'transparent';
   // Keep the touch target at least 44pt even when the visual is smaller.
@@ -38,6 +53,7 @@ export function IconButton({
       haptic="selection"
       scaleTo={0.9}
       accessibilityLabel={accessibilityLabel}
+      {...(active !== undefined && { accessibilityState: { selected: active, disabled: !!disabled } })}
       hitSlop={slop}
       style={[
         styles.base,
@@ -45,7 +61,9 @@ export function IconButton({
         variant === 'surface' && { boxShadow: shadow('e2') },
         style,
       ]}>
-      <Icon size={Math.round(size * 0.5)} color={disabled ? colors.textDisabled : colors.text} />
+      <Animated.View style={iconStyle}>
+        <Icon size={Math.round(size * 0.5)} color={iconColor} weight={active ? 'fill' : 'regular'} />
+      </Animated.View>
     </PressableScale>
   );
 }

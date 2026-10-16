@@ -29,6 +29,11 @@ export const demo = {
     /** Below this, an unsuccessful campaign refunds every backer instead of distributing. */
     minimumToDistributeCents: 25_000,
     presetAmountsCents: [1_000, 2_500, 5_000, 10_000],
+    defaultAmountCents: 2_500,
+    minContributionCents: 100,
+    maxContributionCents: 1_000_000,
+    /** Progress points that create an activity event for backers and followers. */
+    milestones: [0.25, 0.5, 0.75, 1],
   },
   lifecycle: {
     autoAdvance: true,
@@ -36,7 +41,9 @@ export const demo = {
     stepDelaysSec: [20, 40, 60] as [number, number, number],
   },
   payments: {
+    /** A pending demo payment confirms after this many seconds. */
     pendingResolveSec: 8,
+    demoCardLast4: '4242',
   },
   ai: {
     thinkingMs: [1500, 3000] as [number, number],

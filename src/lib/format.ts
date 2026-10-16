@@ -84,6 +84,14 @@ export function formatDate(iso: string): string {
   return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
 }
 
+/** "Oct 16, 2026 at 3:05 PM" for receipts. */
+export function formatDateTime(iso: string): string {
+  const d = new Date(iso);
+  const h = d.getHours();
+  const time = `${h % 12 || 12}:${String(d.getMinutes()).padStart(2, '0')} ${h < 12 ? 'AM' : 'PM'}`;
+  return `${formatDate(iso)} at ${time}`;
+}
+
 export function formatRelative(iso: string, now = Date.now()): string {
   const diff = now - new Date(iso).getTime();
   if (diff < 60_000) return 'just now';

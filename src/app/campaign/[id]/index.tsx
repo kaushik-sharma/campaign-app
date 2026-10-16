@@ -15,7 +15,6 @@ import Animated, {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { scheduleOnRN } from 'react-native-worklets';
 
-import { BackPreviewSheet } from '@/components/campaign/detail/back-preview-sheet';
 import { AudienceDistribution, ReviewTrust, UseOfFunds } from '@/components/campaign/detail/explainers';
 import { FeedbackPoll } from '@/components/campaign/detail/feedback-poll';
 import { FundingPanel } from '@/components/campaign/detail/funding-panel';
@@ -23,6 +22,7 @@ import { HeroCover } from '@/components/campaign/detail/hero-cover';
 import { SourceList } from '@/components/campaign/detail/source-list';
 import { StickyBackBar } from '@/components/campaign/detail/sticky-back-bar';
 import { StoryRenderer } from '@/components/campaign/detail/story-renderer';
+import { SaveButton } from '@/components/campaign/engagement-buttons';
 import { Avatar } from '@/components/ui/avatar';
 import { Card } from '@/components/ui/card';
 import { Divider } from '@/components/ui/divider';
@@ -35,6 +35,7 @@ import { Text } from '@/components/ui/text';
 import { categoryLabel, creatorTypeLabels } from '@/domain/categories';
 import { acceptsContributions } from '@/domain/lifecycle';
 import type { Campaign } from '@/domain/types';
+import { openBackFlow } from '@/features/campaigns/navigation';
 import { useCampaign } from '@/features/campaigns/queries';
 import { formatDate, formatRelative } from '@/lib/format';
 import { shareCampaign } from '@/lib/share';
@@ -93,7 +94,7 @@ function CampaignBody({
       <View
         style={styles.gutter}
         onLayout={(e) => onFundingLayout(e.nativeEvent.layout.y + e.nativeEvent.layout.height)}>
-        <FundingPanel campaign={campaign} onBack={onBack} onShare={() => void shareCampaign(campaign)} />
+        <FundingPanel campaign={campaign} onBack={onBack} />
       </View>
 
       <View style={styles.storyBlock}>
@@ -183,7 +184,7 @@ function BodySkeleton() {
  * Story first, money second; sources always visible; secondary detail in accordions.
  */
 export default function CampaignScreen() {
-  const { id, hero: heroParam, back } = useLocalSearchParams<{ id: string; hero?: string; back?: string }>();
+  const { id, hero: heroParam } = useLocalSearchParams<{ id: string; hero?: string }>();
   const { colors, scheme } = useTheme();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -192,7 +193,6 @@ export default function CampaignScreen() {
 
   // Read the hero rect once; it is cleared from the store so later visits animate normally.
   const [hero] = useState(() => (heroParam ? useHeroStore.getState().take(id) : null));
-  const [backOpen, setBackOpen] = useState(back === '1');
   const [overCover, setOverCover] = useState(true);
 
   // Content fades and rises in behind the flying cover, driven by a shared value on the UI thread.
@@ -251,7 +251,7 @@ export default function CampaignScreen() {
           {campaign ? (
             <CampaignBody
               campaign={campaign}
-              onBack={() => setBackOpen(true)}
+              onBack={() => openBackFlow(campaign.id)}
               onFundingLayout={(bottom) => fundingBottom.set(coverHeight - space.xxl + bottom)}
             />
           ) : query.isError ? (
@@ -268,26 +268,28 @@ export default function CampaignScreen() {
           pointerEvents="none"
           style={[StyleSheet.absoluteFill, styles.headerBg, { backgroundColor: colors.bg, borderBottomColor: colors.border }, headerBgStyle]}
         />
-        <IconButton icon={ArrowLeftIcon} accessibilityLabel="Back" variant="surface" onPress={() => router.back()} />
+        <View style={styles.headerSide}>
+          <IconButton icon={ArrowLeftIcon} accessibilityLabel="Back" variant="surface" onPress={() => router.back()} />
+        </View>
         <Animated.View style={[styles.headerTitle, headerBgStyle]} pointerEvents="none">
           <Text variant="title3" numberOfLines={1} importantForAccessibility="no">
             {campaign?.title ?? ''}
           </Text>
         </Animated.View>
-        <IconButton
-          icon={ShareNetworkIcon}
-          accessibilityLabel="Share campaign"
-          variant="surface"
-          disabled={!campaign}
-          onPress={() => campaign && void shareCampaign(campaign)}
-        />
+        <View style={[styles.headerSide, styles.headerActions]}>
+          {campaign && <SaveButton campaignId={campaign.id} />}
+          <IconButton
+            icon={ShareNetworkIcon}
+            accessibilityLabel="Share campaign"
+            variant="surface"
+            disabled={!campaign}
+            onPress={() => campaign && void shareCampaign(campaign)}
+          />
+        </View>
       </View>
 
       {campaign && canBack && (
-        <>
-          <StickyBackBar campaign={campaign} visible={stickyVisible} onBack={() => setBackOpen(true)} />
-          <BackPreviewSheet campaign={campaign} open={backOpen} onClose={() => setBackOpen(false)} />
-        </>
+        <StickyBackBar campaign={campaign} visible={stickyVisible} onBack={() => openBackFlow(campaign.id)} />
       )}
     </View>
   );
@@ -329,4 +331,7 @@ const styles = StyleSheet.create({
   },
   headerBg: { borderBottomWidth: StyleSheet.hairlineWidth },
   headerTitle: { flex: 1, alignItems: 'center' },
+  // Equal sides keep the compact title centred.
+  headerSide: { width: 88, flexDirection: 'row' },
+  headerActions: { gap: space.sm, justifyContent: 'flex-end' },
 });

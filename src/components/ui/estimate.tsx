@@ -4,9 +4,10 @@ import { StyleSheet, View } from 'react-native';
 import { demo } from '@/config/demo';
 import { estimateReach, peoplePerDollar } from '@/domain/money';
 import type { Cents } from '@/domain/types';
-import { formatMoney, formatReachRange } from '@/lib/format';
+import { formatMoney, formatReachRange, roundEstimate } from '@/lib/format';
 import { radius, space, useTheme, type TypeVariant } from '@/theme';
 
+import { AnimatedNumber } from './animated-number';
 import { Badge } from './badge';
 import { Divider } from './divider';
 import { FlaskIcon, InfoIcon } from './icons';
@@ -64,13 +65,15 @@ type Props = {
   variant?: TypeVariant;
   /** e.g. "people at goal". */
   suffix?: string;
+  /** Recount the range when the amount changes (amount pickers). */
+  animated?: boolean;
 };
 
 /**
  * Every reach figure in the app renders through this: "≈" + range + "Est." badge, and tapping
  * opens the assumptions. Estimates never appear as bare numbers.
  */
-export function EstimatedReach({ amountCents, variant = 'subhead', suffix = 'people' }: Props) {
+export function EstimatedReach({ amountCents, variant = 'subhead', suffix = 'people', animated = false }: Props) {
   const { colors } = useTheme();
   const [open, setOpen] = useState(false);
   const range = estimateReach(amountCents);
@@ -86,9 +89,19 @@ export function EstimatedReach({ amountCents, variant = 'subhead', suffix = 'peo
         accessibilityLabel={`Estimated reach: about ${rangeText.replace('–', ' to ')} ${suffix}, for ${formatMoney(amountCents)}.`}
         accessibilityHint="Explains how this estimate is calculated"
         style={styles.inline}>
-        <Text variant={variant} tabular>
-          {label}
-        </Text>
+        {animated ? (
+          <View style={styles.numbers} importantForAccessibility="no-hide-descendants">
+            <Text variant={variant}>≈ </Text>
+            <AnimatedNumber value={roundEstimate(range.low)} format="compact" variant={variant} animateOnMount={false} inline />
+            <Text variant={variant}>–</Text>
+            <AnimatedNumber value={roundEstimate(range.high)} format="compact" variant={variant} animateOnMount={false} inline />
+            <Text variant={variant}>{` ${suffix}`}</Text>
+          </View>
+        ) : (
+          <Text variant={variant} tabular>
+            {label}
+          </Text>
+        )}
         <View style={[styles.estTag, { borderColor: colors.borderStrong }]}>
           <Text variant="caption" color="textMuted" maxFontSizeMultiplier={1.2}>
             Est.
@@ -108,6 +121,7 @@ export function DemoBadge({ label = 'Demo data' }: { label?: string }) {
 
 const styles = StyleSheet.create({
   inline: { flexDirection: 'row', alignItems: 'center', gap: space.xs + 2, alignSelf: 'flex-start' },
+  numbers: { flexDirection: 'row', alignItems: 'center' },
   estTag: {
     flexDirection: 'row',
     alignItems: 'center',

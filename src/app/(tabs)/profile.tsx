@@ -15,6 +15,7 @@ import {
   InfoIcon,
   LockSimpleIcon,
   QuestionIcon,
+  ReceiptIcon,
   ShieldCheckIcon,
   type IconComponent,
   MoonIcon,
@@ -121,6 +122,17 @@ export default function ProfileScreen() {
     <Screen title="Profile">
       <Section>
         <AccountHeader />
+      </Section>
+
+      <Section title="Your activity">
+        <Card padded={false}>
+          <ListRow
+            icon={ReceiptIcon}
+            title="Payments & receipts"
+            subtitle="Every contribution and its receipt"
+            onPress={() => router.push('/payments')}
+          />
+        </Card>
       </Section>
 
       <Section title="Settings">

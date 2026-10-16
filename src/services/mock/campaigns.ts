@@ -14,6 +14,7 @@ import type {
 
 import type { CampaignService } from '../contracts';
 import { ServiceError } from '../errors';
+import { mockAuthService } from './auth';
 import { db } from './db';
 import { simulateRequest } from './network';
 
@@ -209,6 +210,27 @@ export const mockCampaignService: CampaignService = {
       if (!campaign || !isPublic(campaign.status)) throw new ServiceError('not-found', 'Campaign not found');
       db.setFeedback(id, parsed.data);
       return parsed.data;
+    });
+  },
+
+  getEngagement(id, opts) {
+    return simulateRequest(async () => {
+      await db.ready();
+      const user = (await mockAuthService.getSession())?.user;
+      return user ? db.engagement(user.id, id) : { following: false, saved: false };
+    }, opts);
+  },
+
+  setEngagement(id, patch) {
+    return simulateRequest(async () => {
+      await db.ready();
+      const user = (await mockAuthService.getSession())?.user;
+      if (!user) throw new ServiceError('unauthorized', 'Sign in to follow or save campaigns.');
+      const campaign = db.tables.campaigns.get(id);
+      if (!campaign || !isPublic(campaign.status)) throw new ServiceError('not-found', 'Campaign not found');
+      const next = { ...db.engagement(user.id, id), ...patch };
+      db.setEngagement(user.id, id, next);
+      return next;
     });
   },
 };

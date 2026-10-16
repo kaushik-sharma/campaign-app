@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { StyleSheet, TextInput, type StyleProp, type TextStyle } from 'react-native';
+import { StyleSheet, Text, TextInput, View, type StyleProp, type TextStyle } from 'react-native';
 import Animated, {
   useAnimatedProps,
   useSharedValue,
@@ -39,7 +39,14 @@ type Props = {
   prefix?: string;
   suffix?: string;
   animateOnMount?: boolean;
+  /** Count from this value on mount instead of zero, e.g. the total before a contribution. */
+  from?: number;
   delay?: number;
+  /**
+   * For numbers inside a row of text: sizes the number to its final value so neighbours sit where
+   * they will end up (a native text input does not re-measure while it counts).
+   */
+  inline?: boolean;
   style?: StyleProp<TextStyle>;
 };
 
@@ -55,11 +62,14 @@ export function AnimatedNumber({
   prefix = '',
   suffix = '',
   animateOnMount = true,
+  from,
   delay = 0,
+  inline = false,
   style,
 }: Props) {
   const { colors } = useTheme();
-  const current = useSharedValue(animateOnMount ? 0 : value);
+  const start = from ?? (animateOnMount ? 0 : value);
+  const current = useSharedValue(start);
 
   useEffect(() => {
     current.set(withDelay(delay, withTiming(value, { duration: duration.counter, easing: easing.enter })));
@@ -72,20 +82,36 @@ export function AnimatedNumber({
 
   const finalText = `${prefix}${format(value, kind)}${suffix}`;
 
-  return (
+  const input = (
     <AnimatedTextInput
       editable={false}
       underlineColorAndroid="transparent"
       pointerEvents="none"
       accessibilityLabel={finalText}
       maxFontSizeMultiplier={1.6}
-      defaultValue={`${prefix}${format(animateOnMount ? 0 : value, kind)}${suffix}`}
+      defaultValue={`${prefix}${format(start, kind)}${suffix}`}
       animatedProps={animatedProps}
-      style={[styles.input, typography[variant], { color: colors[color] }, style]}
+      style={[styles.input, typography[variant], { color: colors[color] }, inline && styles.overlay, style]}
     />
+  );
+
+  if (!inline) return input;
+  return (
+    <View accessible accessibilityLabel={finalText}>
+      <Text
+        importantForAccessibility="no-hide-descendants"
+        maxFontSizeMultiplier={1.6}
+        style={[typography[variant], styles.sizer, style]}>
+        {finalText}
+      </Text>
+      {input}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   input: { padding: 0, margin: 0, fontVariant: ['tabular-nums'] },
+  sizer: { opacity: 0, fontVariant: ['tabular-nums'] },
+  // Spare width on the right so a briefly longer intermediate value isn't clipped.
+  overlay: { position: 'absolute', top: 0, bottom: 0, left: 0, right: -24 },
 });

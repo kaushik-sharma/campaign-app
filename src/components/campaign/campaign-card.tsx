@@ -13,7 +13,7 @@ import { categoryLabel, creatorTypeLabels } from '@/domain/categories';
 import { acceptsContributions } from '@/domain/lifecycle';
 import { fundingProgress } from '@/domain/money';
 import type { CampaignSummary } from '@/domain/types';
-import { useOpenCampaign } from '@/features/campaigns/navigation';
+import { openBackFlow, useOpenCampaign } from '@/features/campaigns/navigation';
 import { formatMoney, formatPercent, formatTimeLeft } from '@/lib/format';
 import { motion, radius, space, spring } from '@/theme';
 
@@ -77,7 +77,7 @@ export function CampaignCard({ campaign, index = 0 }: { campaign: CampaignSummar
               <Button
                 label="Back this campaign"
                 size="sm"
-                onPress={() => open(campaign, { cover: coverRef, radius: radius.lg, back: true })}
+                onPress={() => openBackFlow(campaign.id)}
               />
             ) : (
               <StatusPill status={campaign.status} />
