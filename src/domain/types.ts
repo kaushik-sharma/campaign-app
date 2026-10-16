@@ -54,11 +54,19 @@ export type Source = {
 };
 
 export type StoryBlock =
+  /** A large serif line inside the story, e.g. a section-opening headline. */
+  | { id: string; type: 'headline'; text: string }
+  /** The lede: the opening paragraph in italic serif. */
+  | { id: string; type: 'intro'; text: string }
   | { id: string; type: 'heading'; text: string }
   | { id: string; type: 'paragraph'; text: string }
   | { id: string; type: 'image'; image: ImageAsset; caption?: string }
   | { id: string; type: 'stat'; value: string; label: string; sourceId?: string }
-  | { id: string; type: 'quote'; text: string; attribution?: string };
+  | { id: string; type: 'quote'; text: string; attribution?: string }
+  /** Suggested audience actions. Published as the campaign's "What you can do" list. */
+  | { id: string; type: 'actions'; items: string[] };
+
+export type StoryBlockType = StoryBlock['type'];
 
 export type Channel = 'social-feed' | 'stories' | 'search' | 'news-sites' | 'video';
 
@@ -226,7 +234,12 @@ export type ActivityKind =
   | 'payment-failed'
   | 'payment-cancelled'
   | 'milestone'
-  | 'goal-reached';
+  | 'goal-reached'
+  | 'submitted'
+  | 'approved'
+  | 'changes-requested'
+  | 'rejected'
+  | 'funding-open';
 
 export type ActivityEvent = {
   id: string;
@@ -238,6 +251,8 @@ export type ActivityEvent = {
   read: boolean;
   /** Opens the receipt when set; otherwise the campaign. */
   contributionId?: string;
+  /** For the creator's own campaign events: opens its review status instead of the public page. */
+  opensStatus?: boolean;
 };
 
 /** The current reader's relationship to a campaign. */

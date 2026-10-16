@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
-import { DemoBadge, EstimatedReach } from '@/components/ui/estimate';
+import { EstimatedReach } from '@/components/ui/estimate';
 import { IconButton } from '@/components/ui/icon-button';
 import {
   ArrowRightIcon,
@@ -130,7 +130,6 @@ export default function DesignSystemScreen() {
             <Badge label="Verified source" tone="success" icon={ShieldCheckIcon} />
             <Badge label="Needs edits" tone="warning" />
             <Badge label="Failed" tone="danger" />
-            <DemoBadge />
           </View>
           <View style={styles.wrap}>
             {CAMPAIGN_STATUSES.map((s) => (

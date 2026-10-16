@@ -12,6 +12,9 @@ import {
   CheckCircleIcon,
   ClockIcon,
   MinusCircleIcon,
+  PaperPlaneTiltIcon,
+  PencilSimpleIcon,
+  RocketLaunchIcon,
   SealCheckIcon,
   XCircleIcon,
   type IconComponent,
@@ -34,6 +37,11 @@ const KIND: Record<ActivityKind, { icon: IconComponent; tone: TextColor }> = {
   'payment-cancelled': { icon: MinusCircleIcon, tone: 'textMuted' },
   milestone: { icon: ChartLineUpIcon, tone: 'primary' },
   'goal-reached': { icon: SealCheckIcon, tone: 'success' },
+  submitted: { icon: PaperPlaneTiltIcon, tone: 'primary' },
+  approved: { icon: CheckCircleIcon, tone: 'success' },
+  'changes-requested': { icon: PencilSimpleIcon, tone: 'warning' },
+  rejected: { icon: XCircleIcon, tone: 'danger' },
+  'funding-open': { icon: RocketLaunchIcon, tone: 'success' },
 };
 
 function softOf(tone: TextColor, colors: ColorTokens) {
@@ -54,17 +62,18 @@ function softOf(tone: TextColor, colors: ColorTokens) {
 function EventRow({ event }: { event: ActivityEvent }) {
   const { colors } = useTheme();
   const { icon: Icon, tone } = KIND[event.kind];
-  const open = () =>
-    event.contributionId
-      ? router.push({ pathname: '/receipt/[id]', params: { id: event.contributionId } })
-      : router.push({ pathname: '/campaign/[id]', params: { id: event.campaignId } });
+  const open = () => {
+    if (event.contributionId) router.push({ pathname: '/receipt/[id]', params: { id: event.contributionId } });
+    else if (event.opensStatus) router.push({ pathname: '/submitted/[id]', params: { id: event.campaignId } });
+    else router.push({ pathname: '/campaign/[id]', params: { id: event.campaignId } });
+  };
 
   return (
     <PressableScale
       onPress={open}
       scaleTo={motion.pressScale.row}
       accessibilityLabel={`${event.read ? '' : 'New. '}${event.title}. ${event.body}. ${formatRelative(event.at)}`}
-      accessibilityHint={event.contributionId ? 'Opens the receipt' : 'Opens the campaign'}
+      accessibilityHint={event.contributionId ? 'Opens the receipt' : event.opensStatus ? 'Opens the review status' : 'Opens the campaign'}
       style={styles.row}>
       <View style={[styles.icon, { backgroundColor: softOf(tone, colors) }]}>
         <Icon size={20} color={colors[tone]} weight="fill" />

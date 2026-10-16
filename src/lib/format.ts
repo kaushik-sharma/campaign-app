@@ -100,3 +100,8 @@ export function formatRelative(iso: string, now = Date.now()): string {
   if (diff < 7 * DAY) return `${Math.floor(diff / DAY)}d ago`;
   return formatDate(iso);
 }
+
+/** "https://www.epa.gov/x" → "epa.gov". React Native's URL polyfill lacks `hostname`. */
+export function domainOf(url: string): string {
+  return url.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
+}

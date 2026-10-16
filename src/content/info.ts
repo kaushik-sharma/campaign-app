@@ -43,7 +43,7 @@ export const infoPages: Record<InfoSlug, InfoPage> = {
     sections: [
       { body: 'We are a community-funded advertising platform. Creators, nonprofits, businesses and community groups publish campaigns; backers fund the ads that carry them to new audiences.' },
       { heading: 'Not a donation platform', body: 'Contributions pay for distribution of a message. They do not go to the creator or the cause, and they are not charitable donations.' },
-      { heading: 'This prototype', body: 'This app is a prototype. Campaigns, creators, figures and payments are demo data, and no real money moves.' },
+      { heading: 'This prototype', body: 'This app is a prototype. Campaigns, creators, figures and payments are sample data, and no real money moves.' },
     ],
   },
   faq: {

@@ -36,6 +36,14 @@
             "image": "./assets/images/splash-icon.png"
           }
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Campaigns uses your photos for campaign covers, story images and ads you choose to add.",
+          "cameraPermission": false,
+          "microphonePermission": false
+        }
       ]
     ],
     "experiments": {

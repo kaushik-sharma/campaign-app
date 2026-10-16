@@ -3,13 +3,14 @@ import { StyleSheet, View } from 'react-native';
 import { AnimatedNumber } from '@/components/ui/animated-number';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { DemoBadge, EstimatedReach } from '@/components/ui/estimate';
+import { EstimatedReach } from '@/components/ui/estimate';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { Text } from '@/components/ui/text';
 import { acceptsContributions, statusMeta } from '@/domain/lifecycle';
 import { fundingProgress } from '@/domain/money';
 import type { Campaign } from '@/domain/types';
 import { formatInteger, formatMoney, formatPercent, formatTimeLeft } from '@/lib/format';
+import { toast } from '@/stores/toast';
 import { space, useTheme } from '@/theme';
 
 import { FollowButton } from '../engagement-buttons';
@@ -17,6 +18,8 @@ import { FollowButton } from '../engagement-buttons';
 type Props = {
   campaign: Campaign;
   onBack: () => void;
+  /** Draft preview: shows the live layout but the actions explain they aren't active yet. */
+  preview?: boolean;
 };
 
 function Stat({ value, label }: { value: string; label: string }) {
@@ -33,7 +36,7 @@ function Stat({ value, label }: { value: string; label: string }) {
 }
 
 /** Funding progress, estimated reach and the primary action. Only funding campaigns can be backed. */
-export function FundingPanel({ campaign, onBack }: Props) {
+export function FundingPanel({ campaign, onBack, preview = false }: Props) {
   const { colors } = useTheme();
   const progress = fundingProgress(campaign.raisedCents, campaign.goalCents);
   const canBack = acceptsContributions(campaign.status);
@@ -48,7 +51,6 @@ export function FundingPanel({ campaign, onBack }: Props) {
             raised of {formatMoney(campaign.goalCents)} goal
           </Text>
         </View>
-        <DemoBadge />
       </View>
 
       <ProgressBar value={progress} height={8} delay={350} accessibilityLabel={`${formatPercent(progress)} funded`} />
@@ -68,8 +70,13 @@ export function FundingPanel({ campaign, onBack }: Props) {
 
       {canBack ? (
         <View style={styles.actions}>
-          <Button label="Back this campaign" size="lg" onPress={onBack} style={styles.primary} />
-          <FollowButton campaignId={campaign.id} size={56} />
+          <Button
+            label="Back this campaign"
+            size="lg"
+            onPress={preview ? () => toast('Backing opens once your campaign is approved.') : onBack}
+            style={styles.primary}
+          />
+          {!preview && <FollowButton campaignId={campaign.id} size={56} />}
         </View>
       ) : (
         <View style={styles.closed}>

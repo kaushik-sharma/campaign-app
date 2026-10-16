@@ -1,3 +1,4 @@
+import type { Draft } from '@/domain/draft';
 import type { ActivityEvent, Campaign, CampaignFeedback, Contribution, Engagement } from '@/domain/types';
 import { readJSON, removeKeys, writeJSON } from '@/lib/storage';
 
@@ -22,6 +23,10 @@ type Overlay = {
   activity: Record<string, ActivityEvent[]>;
   /** Follow / save state per user id, keyed by campaign id. */
   engagement: Record<string, Record<string, Engagement>>;
+  /** Campaign drafts by id. A submitted draft keeps its `campaignId` link for resubmission. */
+  drafts: Record<string, Draft & { campaignId: string | null }>;
+  /** Campaigns created in the app (any status), by id. Patches still apply on top. */
+  created: Record<string, Campaign>;
 };
 
 const emptyOverlay = (): Overlay => ({
@@ -31,6 +36,8 @@ const emptyOverlay = (): Overlay => ({
   idempotency: {},
   activity: {},
   engagement: {},
+  drafts: {},
+  created: {},
 });
 
 type Tables = {
@@ -44,7 +51,7 @@ let persistTimer: ReturnType<typeof setTimeout> | null = null;
 
 function build(o: Overlay): Tables {
   const campaigns = new Map<string, Campaign>();
-  for (const c of seedCampaigns()) {
+  for (const c of [...seedCampaigns(), ...Object.values(o.created)]) {
     campaigns.set(c.id, { ...c, ...o.campaignPatches[c.id] });
   }
   return { campaigns };
@@ -135,6 +142,38 @@ export const db = {
   setEngagement(userId: string, campaignId: string, value: Engagement) {
     overlay.engagement[userId] = { ...overlay.engagement[userId], [campaignId]: value };
     schedulePersist();
+  },
+
+  drafts(): (Draft & { campaignId: string | null })[] {
+    return Object.values(overlay.drafts);
+  },
+
+  getDraft(id: string) {
+    return overlay.drafts[id];
+  },
+
+  putDraft(draft: Draft & { campaignId: string | null }) {
+    overlay.drafts[draft.id] = draft;
+    schedulePersist();
+  },
+
+  deleteDraft(id: string) {
+    delete overlay.drafts[id];
+    schedulePersist();
+  },
+
+  /** Adds or replaces an app-created campaign (content changes, e.g. a resubmission). */
+  putCreatedCampaign(campaign: Campaign) {
+    overlay.created[campaign.id] = campaign;
+    delete overlay.campaignPatches[campaign.id];
+    tables.campaigns.set(campaign.id, campaign);
+    schedulePersist();
+  },
+
+  createdCampaigns(): Campaign[] {
+    return Object.keys(overlay.created)
+      .map((id) => tables.campaigns.get(id))
+      .filter((c): c is Campaign => !!c);
   },
 
   async reset(): Promise<void> {

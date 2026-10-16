@@ -3,17 +3,17 @@ import { z } from 'zod';
 import { demo } from '@/config/demo';
 import { acceptsContributions, isPublic } from '@/domain/lifecycle';
 import { computeFees } from '@/domain/money';
-import type { ActivityEvent, Campaign, Contribution, User } from '@/domain/types';
+import type { Campaign, Contribution, User } from '@/domain/types';
 import { formatMoney, formatPercent } from '@/lib/format';
 
 import type { ActivityService, ContributionService } from '../contracts';
 import { ServiceError } from '../errors';
 import { mockAuthService } from './auth';
 import { db } from './db';
+import { addEvent, GUEST, randomId } from './events';
+import { advanceDue } from './lifecycle';
 import { simulateRequest } from './network';
 
-/** Activity owner for guest payments made on this device. */
-const GUEST = 'guest';
 
 const { minContributionCents: MIN, maxContributionCents: MAX } = demo.funding;
 const amountMessage = `Enter an amount from ${formatMoney(MIN)} to ${formatMoney(MAX)}`;
@@ -27,18 +27,12 @@ const checkoutSchema = z.object({
   simulate: z.enum(['approve', 'pending', 'decline', 'cancel']),
 });
 
-const randomId = (prefix: string) =>
-  `${prefix}${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`;
 
 async function currentUser(): Promise<User | null> {
   return (await mockAuthService.getSession())?.user ?? null;
 }
 
 const ownerOf = (c: Contribution) => c.userId ?? GUEST;
-
-function addEvent(owner: string, event: Omit<ActivityEvent, 'id' | 'at' | 'read'>) {
-  db.addActivity(owner, { ...event, id: randomId('ev_'), at: new Date().toISOString(), read: false });
-}
 
 /** Activity for one payment attempt, in the backer's own feed. */
 function recordOutcome(c: Contribution, confirmedLater = false) {
@@ -249,6 +243,7 @@ export const mockActivityService: ActivityService = {
     return simulateRequest(async () => {
       await db.ready();
       settleAll();
+      advanceDue();
       const user = await currentUser();
       return [...db.activity(user?.id ?? GUEST)].reverse();
     }, opts);

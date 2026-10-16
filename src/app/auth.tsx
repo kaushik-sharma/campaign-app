@@ -190,13 +190,13 @@ export default function AuthScreen() {
           <Card tone="sunken" style={styles.demo}>
             <View style={styles.demoHeader}>
               <FlaskIcon size={16} color={colors.textMuted} />
-              <Text variant="subhead">Prototype demo account</Text>
+              <Text variant="subhead">Test account</Text>
             </View>
             <Text variant="footnote" color="textMuted">
               {`${demo.demoAccount.email} · ${demo.demoAccount.password}. Accounts in this prototype are stored only on this device.`}
             </Text>
             <Button
-              label="Use demo account"
+              label="Use test account"
               variant="secondary"
               size="sm"
               onPress={() => {

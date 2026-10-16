@@ -12,6 +12,8 @@ export function useActivity() {
   return useQuery({
     queryKey: activityKeys.list(),
     queryFn: ({ signal }) => services.activity.list({ signal }),
+    // Review decisions and confirmations arrive in the background; keep the tab badge fresh.
+    refetchInterval: 15_000,
   });
 }
 

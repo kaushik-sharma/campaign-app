@@ -23,7 +23,7 @@ import { duration, radius, space, useTheme } from '@/theme';
 import { AmountPicker } from './amount-picker';
 import { CampaignStrip } from './campaign-strip';
 import { ChargeTable, FundsSplit } from './fee-breakdown';
-import { StepLayout } from './step-layout';
+import { StepLayout } from '@/components/ui/step-layout';
 
 const money = (cents: Cents) => formatMoney(cents, { showCents: true });
 
@@ -207,11 +207,11 @@ function DemoCard() {
       end={{ x: 1, y: 1 }}
       style={styles.demoCard}
       accessible
-      accessibilityLabel={`Demo card ending ${demo.payments.demoCardLast4}`}>
+      accessibilityLabel={`Test card ending ${demo.payments.demoCardLast4}`}>
       <View style={styles.chip} />
       <View style={styles.flex}>
         <Text variant="bodyStrong" style={styles.onCard}>
-          Demo card
+          Test card
         </Text>
         <Text variant="footnote" style={styles.onCardMuted} tabular>
           {`•••• ${demo.payments.demoCardLast4} · Expires 12/29`}
@@ -331,15 +331,15 @@ export function CheckoutStep({
       <Card tone="sunken" elevation="e0" style={styles.simulate}>
         <View style={styles.simulateHeader}>
           <Text variant="subhead" style={styles.flex}>
-            Demo payment result
+            Test payment result
           </Text>
           <Badge label="Prototype" icon={FlaskIcon} />
         </View>
         <Text variant="footnote" color="textMuted">
-          Choose what the demo card does. No real money moves.
+          Choose what the test card does. No real money moves.
         </Text>
         <SegmentedControl<SimulatedOutcome>
-          accessibilityLabel="Demo payment result"
+          accessibilityLabel="Test payment result"
           value={simulate}
           onChange={onSimulateChange}
           options={[

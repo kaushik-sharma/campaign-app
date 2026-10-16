@@ -7,7 +7,6 @@ import { CampaignRow } from '@/components/campaign/campaign-row';
 import { HowItWorksCard } from '@/components/campaign/how-it-works';
 import { LeadStoryCard, LeadStorySkeleton } from '@/components/campaign/lead-story-card';
 import { Rail, RailSkeleton } from '@/components/campaign/rail';
-import { DemoBadge } from '@/components/ui/estimate';
 import { Screen } from '@/components/ui/screen';
 import { SkeletonGroup } from '@/components/ui/skeleton';
 import { ErrorState } from '@/components/ui/states';
@@ -15,14 +14,6 @@ import { Text } from '@/components/ui/text';
 import { campaignKeys, useHomeFeed } from '@/features/campaigns/queries';
 import { usePreferences } from '@/stores/preferences';
 import { duration, layout, space, spring } from '@/theme';
-
-const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-function today(): string {
-  const d = new Date();
-  return `${WEEKDAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}`;
-}
 
 const layoutTransition = LinearTransition.springify().damping(spring.gentle.damping).stiffness(spring.gentle.stiffness);
 
@@ -45,12 +36,7 @@ export default function HomeScreen() {
 
   return (
     <Screen title="Campaigns" brand onRefresh={onRefresh} refreshing={refreshing}>
-      <View style={styles.dateline}>
-        <Text variant="overline" color="textMuted">
-          {today()}
-        </Text>
-        <DemoBadge />
-      </View>
+      <View style={styles.top} />
 
       {home.isPending ? (
         <SkeletonGroup label="Loading campaigns">
@@ -108,14 +94,7 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  dateline: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: layout.gutter,
-    paddingTop: space.sm,
-    paddingBottom: space.lg,
-  },
+  top: { height: space.md },
   lead: { paddingHorizontal: layout.gutter, marginBottom: layout.sectionGap },
   intro: { paddingHorizontal: layout.gutter, marginBottom: layout.sectionGap },
   section: { paddingHorizontal: layout.gutter, gap: space.md, marginBottom: layout.sectionGap },

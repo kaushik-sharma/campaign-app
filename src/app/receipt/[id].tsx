@@ -48,7 +48,7 @@ function ReceiptBody({ c }: { c: Contribution }) {
     ...(c.settledAt && c.status === 'succeeded' && c.settledAt !== c.createdAt
       ? ([['Confirmed', formatDateTime(c.settledAt)]] as [string, string][])
       : []),
-    ['Paid with', `Demo card •••• ${c.cardLast4}`],
+    ['Paid with', `Test card •••• ${c.cardLast4}`],
     ['Email', c.email || 'Not provided'],
     ['Shown publicly as', c.publicName ?? 'Anonymous backer'],
   ];

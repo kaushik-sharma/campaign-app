@@ -3,14 +3,24 @@
  * The mock (`./mock`) and the future Supabase implementation (`./supabase`) both satisfy them,
  * so swapping backends never touches UI code.
  *
- * Drafts, reports and AI contracts are added in the phases that introduce them (see docs/PLAN.md).
+ * Report contracts are added in the phase that introduces them (see docs/PLAN.md).
  */
+import type { CampaignStatus } from '@/domain/lifecycle';
+import type {
+  BasicsSuggestion,
+  Draft,
+  DraftPatch,
+  DraftSummary,
+  MediaAsset,
+  VoiceAnswers,
+} from '@/domain/draft';
 import type {
   ActivityEvent,
   Campaign,
   CampaignFeedback,
   CampaignListParams,
   CampaignSummary,
+  CategoryId,
   CheckoutInput,
   Contribution,
   Engagement,
@@ -68,6 +78,50 @@ export interface ActivityService {
   markAllRead(): Promise<void>;
 }
 
+/** Campaign drafts. Guests can draft on this device; submitting requires a session. */
+export interface DraftService {
+  /** Unsubmitted drafts for the current user (or guest drafts on this device), newest first. */
+  list(opts?: Opts): Promise<DraftSummary[]>;
+  get(id: string, opts?: Opts): Promise<Draft>;
+  /** A new draft, optionally pre-filled by AI (voice creation). */
+  create(input: { origin: Draft['origin']; patch?: DraftPatch }): Promise<Draft>;
+  /** Autosave: replaces the stored draft and returns it with the server's `updatedAt`. */
+  save(draft: Draft): Promise<Draft>;
+  remove(id: string): Promise<void>;
+  /**
+   * Validates every step and submits for review (`unauthorized` without a session, `validation`
+   * with field errors otherwise). Resubmitting after "changes requested" updates the same campaign.
+   */
+  submit(id: string): Promise<Campaign>;
+}
+
+/** A creator's own campaigns in any status, including ones not yet public. */
+export interface CreatorService {
+  listCampaigns(opts?: Opts): Promise<CampaignSummary[]>;
+  getCampaign(id: string, opts?: Opts): Promise<Campaign>;
+  /** The draft a submitted campaign came from, for "edit and resubmit". */
+  draftFor(campaignId: string, opts?: Opts): Promise<string | null>;
+}
+
+/** Demo AI. Output types cannot carry a funding goal (see `DraftPatch`). */
+export interface AiService {
+  suggestBasics(
+    input: { title: string; summary: string; category: CategoryId | null; storyText: string },
+    opts?: Opts,
+  ): Promise<BasicsSuggestion[]>;
+  draftFromAnswers(answers: VoiceAnswers, opts?: Opts): Promise<DraftPatch>;
+  generateImages(input: { category: CategoryId | null; count: number }, opts?: Opts): Promise<MediaAsset[]>;
+}
+
+export type ReviewDecision = 'approve' | 'changes' | 'reject';
+
+export type LifecycleSettings = {
+  /** Advance submitted campaigns on timers. */
+  autoAdvance: boolean;
+  /** What the simulated review decides. */
+  decision: ReviewDecision;
+};
+
 export type NetworkSettings = {
   /** 0–1 share of requests that fail. */
   failureRate: number;
@@ -83,6 +137,10 @@ export interface DevService {
   /** Force the next `count` requests to fail with a server error. */
   failNext(count: number): void;
   resetDemoData(): Promise<void>;
+  getLifecycle(): LifecycleSettings;
+  setLifecycle(patch: Partial<LifecycleSettings>): void;
+  /** Moves a campaign (default: the newest one in review) to its next status now. */
+  advanceCampaign(id?: string): Promise<{ id: string; status: CampaignStatus } | null>;
 }
 
 export type Services = {
@@ -90,6 +148,9 @@ export type Services = {
   campaigns: CampaignService;
   contributions: ContributionService;
   activity: ActivityService;
+  drafts: DraftService;
+  creator: CreatorService;
+  ai: AiService;
   dev: DevService;
 };
 

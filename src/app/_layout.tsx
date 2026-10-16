@@ -52,6 +52,7 @@ function RootNavigator() {
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="auth" options={{ presentation: 'modal' }} />
         <Stack.Screen name="campaign/[id]/back" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="voice" options={{ presentation: 'modal' }} />
         {/* Opened from a card with a hero transition: fade, so the flying cover isn't pushed sideways. */}
         <Stack.Screen
           name="campaign/[id]/index"

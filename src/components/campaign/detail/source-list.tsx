@@ -6,12 +6,8 @@ import { ArrowRightIcon } from '@/components/ui/icons';
 import { PressableScale } from '@/components/ui/pressable-scale';
 import { Text } from '@/components/ui/text';
 import type { Source } from '@/domain/types';
+import { domainOf } from '@/lib/format';
 import { layout, motion, radius, space, useTheme } from '@/theme';
-
-/** "https://www.epa.gov/x" → "epa.gov". React Native's URL polyfill lacks `hostname`. */
-function domainOf(url: string): string {
-  return url.replace(/^https?:\/\//, '').replace(/^www\./, '').split('/')[0];
-}
 
 /** Numbered sources, always visible to readers. Each opens in the in-app browser. */
 export function SourceList({ sources }: { sources: Source[] }) {

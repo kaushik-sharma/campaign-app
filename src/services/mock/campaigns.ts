@@ -16,6 +16,7 @@ import type { CampaignService } from '../contracts';
 import { ServiceError } from '../errors';
 import { mockAuthService } from './auth';
 import { db } from './db';
+import { advanceDue } from './lifecycle';
 import { simulateRequest } from './network';
 
 const answer = z.enum(['no', 'somewhat', 'yes']);
@@ -117,6 +118,7 @@ export const mockCampaignService: CampaignService = {
   list(params: CampaignListParams, opts) {
     return simulateRequest(async () => {
       await db.ready();
+      advanceDue();
       const now = Date.now();
       const { query = '', category, sort = 'trending', filters = {} } = params;
       const limit = Math.min(Math.max(params.limit ?? demo.network.pageSize, 1), 50);
@@ -141,6 +143,7 @@ export const mockCampaignService: CampaignService = {
   featured(opts) {
     return simulateRequest(async () => {
       await db.ready();
+      advanceDue();
       return [...db.tables.campaigns.values()]
         .filter((c) => c.featured && isPublic(c.status))
         .sort((a, b) => b.trendScore - a.trendScore)
@@ -151,6 +154,7 @@ export const mockCampaignService: CampaignService = {
   home(opts) {
     return simulateRequest(async (): Promise<HomeFeed> => {
       await db.ready();
+      advanceDue();
       const now = Date.now();
       const all = [...db.tables.campaigns.values()];
       const used = new Set<string>();
@@ -186,6 +190,7 @@ export const mockCampaignService: CampaignService = {
   get(id, opts) {
     return simulateRequest(async () => {
       await db.ready();
+      advanceDue();
       const campaign = db.tables.campaigns.get(id);
       if (!campaign || !isPublic(campaign.status)) {
         throw new ServiceError('not-found', 'Campaign not found');

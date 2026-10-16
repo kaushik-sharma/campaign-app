@@ -5,12 +5,13 @@ import { setPendingAuthAction } from './pending-action';
 
 export { clearPendingAuthAction } from './pending-action';
 
-export type AuthReason = 'follow' | 'save' | 'payments';
+export type AuthReason = 'follow' | 'save' | 'payments' | 'submit';
 
 export const authReasons: Record<AuthReason, string> = {
   follow: 'Sign in to follow this campaign and get its updates in Activity.',
   save: 'Sign in to save campaigns and find them again on any device.',
   payments: 'Sign in to keep receipts for future payments together in your account.',
+  submit: 'Sign in to submit your campaign. Your draft is kept, and review updates will reach you in Activity.',
 };
 
 /**

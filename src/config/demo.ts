@@ -37,8 +37,27 @@ export const demo = {
   },
   lifecycle: {
     autoAdvance: true,
-    /** Seconds after submission for: under review → decision → available for funding. */
-    stepDelaysSec: [20, 40, 60] as [number, number, number],
+    /** Seconds after submission until the review decision, then until funding opens. */
+    reviewDecisionSec: 20,
+    openForFundingSec: 40,
+    /** How long a newly opened campaign accepts contributions. */
+    fundingWindowDays: 30,
+  },
+  creation: {
+    titleMax: 60,
+    titleMin: 10,
+    summaryMin: 40,
+    summaryMax: 200,
+    storyMinChars: 150,
+    goalMinCents: 25_000,
+    goalMaxCents: 10_000_000,
+    durationOptionsDays: [7, 14, 30],
+    maxAdImages: 4,
+    maxStoryBlocks: 24,
+    /** Autosave fires this long after the last edit. */
+    autosaveMs: 700,
+    image: { maxBytes: 10 * 1024 * 1024, minShortSide: 600, recommendedShortSide: 1080 },
+    video: { maxBytes: 100 * 1024 * 1024, minMs: 3_000, maxMs: 60_000 },
   },
   payments: {
     /** A pending demo payment confirms after this many seconds. */

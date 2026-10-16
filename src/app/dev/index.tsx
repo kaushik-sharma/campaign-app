@@ -6,14 +6,16 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Divider } from '@/components/ui/divider';
-import { ArrowClockwiseIcon, FlaskIcon, PaletteIcon, WifiSlashIcon } from '@/components/ui/icons';
+import { ArrowClockwiseIcon, FastForwardIcon, FlaskIcon, PaletteIcon, TimerIcon, WifiSlashIcon } from '@/components/ui/icons';
 import { ListRow } from '@/components/ui/list-row';
 import { Screen } from '@/components/ui/screen';
 import { Section } from '@/components/ui/section';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Switch } from '@/components/ui/switch';
 import { Text } from '@/components/ui/text';
+import { demo } from '@/config/demo';
 import { useDevControls } from '@/features/dev/use-dev-controls';
+import type { ReviewDecision } from '@/services';
 import { toast } from '@/stores/toast';
 import { layout, space } from '@/theme';
 
@@ -32,7 +34,7 @@ export default function DevScreen() {
 
   const confirmReset = () =>
     Alert.alert(
-      'Reset demo data?',
+      'Reset sample data?',
       'Clears contributions, drafts, follows and lifecycle changes made on this device. Your sign-in is kept.',
       [
         { text: 'Cancel', style: 'cancel' },
@@ -43,20 +45,20 @@ export default function DevScreen() {
             setResetting(true);
             await dev.resetDemoData();
             setResetting(false);
-            toast('Demo data reset', 'success');
+            toast('Sample data reset', 'success');
           },
         },
       ],
     );
 
   return (
-    <Screen title="Demo controls" back>
+    <Screen title="Developer controls" back>
       <Section>
         <Card tone="sunken" style={styles.note}>
           <Badge label="Prototype only" icon={FlaskIcon} />
           <Text variant="subhead" color="textMuted">
-            These controls simulate backend behaviour so loading, error and retry states can be shown in
-            a demo. They are not part of the product.
+            These controls simulate backend behaviour so loading, error and retry states can be shown
+            while testing. They are not part of the product.
           </Text>
         </Card>
       </Section>
@@ -117,6 +119,45 @@ export default function DevScreen() {
         </Card>
       </Section>
 
+      <Section title="Campaign review">
+        <Card style={styles.group}>
+          <View style={styles.control}>
+            <Text variant="subhead">Review decision</Text>
+            <SegmentedControl<ReviewDecision>
+              accessibilityLabel="Review decision"
+              value={dev.lifecycle.decision}
+              onChange={(decision) => dev.setLifecycle({ decision })}
+              options={[
+                { value: 'approve', label: 'Approve' },
+                { value: 'changes', label: 'Changes' },
+                { value: 'reject', label: 'Reject' },
+              ]}
+            />
+          </View>
+        </Card>
+        <Card padded={false} style={styles.rows}>
+          <ListRow
+            icon={TimerIcon}
+            title="Advance on timers"
+            subtitle={`Decision after ${demo.lifecycle.reviewDecisionSec} s, backing opens ${demo.lifecycle.openForFundingSec - demo.lifecycle.reviewDecisionSec} s later`}
+            trailing={
+              <Switch
+                value={dev.lifecycle.autoAdvance}
+                onValueChange={(autoAdvance) => dev.setLifecycle({ autoAdvance })}
+                accessibilityLabel="Advance on timers"
+              />
+            }
+          />
+          <Divider inset={layout.cardPadding} />
+          <ListRow
+            icon={FastForwardIcon}
+            title="Advance newest campaign now"
+            subtitle="Moves your latest submission to its next status"
+            onPress={async () => toast(await dev.advanceCampaign())}
+          />
+        </Card>
+      </Section>
+
       <Section title="Design">
         <Card padded={false}>
           <ListRow
@@ -129,7 +170,7 @@ export default function DevScreen() {
       </Section>
 
       <Section title="Data">
-        <Button label="Reset demo data" variant="destructive" fullWidth loading={resetting} onPress={confirmReset} />
+        <Button label="Reset sample data" variant="destructive" fullWidth loading={resetting} onPress={confirmReset} />
       </Section>
     </Screen>
   );

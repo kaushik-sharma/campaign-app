@@ -187,8 +187,8 @@ export default function ProfileScreen() {
           <Card padded={false}>
             <ListRow
               icon={WrenchIcon}
-              title="Demo controls"
-              subtitle="Network failures, latency, demo data and the design system"
+              title="Developer controls"
+              subtitle="Network failures, latency, sample data and the design system"
               onPress={() => router.push('/dev')}
             />
           </Card>
@@ -199,10 +199,10 @@ export default function ProfileScreen() {
       <Pressable
         onLongPress={() => router.push('/dev')}
         accessibilityRole="text"
-        accessibilityHint="Long press to open demo controls"
+        accessibilityHint="Long press to open developer controls"
         style={styles.version}>
         <Text variant="caption" color="textMuted" align="center">
-          Campaigns {version} · Prototype with demo data
+          Campaigns {version} · Prototype with sample data
         </Text>
       </Pressable>
     </Screen>

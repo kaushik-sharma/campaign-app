@@ -1,6 +1,8 @@
+import * as WebBrowser from 'expo-web-browser';
 import { StyleSheet, View } from 'react-native';
 
 import { Text } from '@/components/ui/text';
+import { parseInline } from '@/lib/inline-format';
 import type { Source, StoryBlock } from '@/domain/types';
 import { fonts, layout, radius, space, useTheme } from '@/theme';
 
@@ -10,6 +12,32 @@ type Props = {
   blocks: StoryBlock[];
   sources: Source[];
 };
+
+/** Paragraph text with **bold**, _italic_ and [links](https://…) rendered inline. */
+function RichText({ text }: { text: string }) {
+  const { colors } = useTheme();
+  return (
+    <Text variant="storyBody">
+      {parseInline(text).map((span, i) => {
+        if (span.kind === 'bold') return <Text key={i} variant="storyBody" style={styles.bold}>{span.text}</Text>;
+        if (span.kind === 'italic') return <Text key={i} variant="storyBody" style={styles.italic}>{span.text}</Text>;
+        if (span.kind === 'link') {
+          return (
+            <Text
+              key={i}
+              variant="storyBody"
+              accessibilityRole="link"
+              onPress={() => void WebBrowser.openBrowserAsync(span.url)}
+              style={[styles.link, { color: colors.primary, textDecorationColor: colors.primary }]}>
+              {span.text}
+            </Text>
+          );
+        }
+        return span.text;
+      })}
+    </Text>
+  );
+}
 
 /**
  * Renders a campaign story as an editorial article. Used by the detail page and, later, the
@@ -26,6 +54,18 @@ export function StoryRenderer({ blocks, sources }: Props) {
     <View style={styles.story}>
       {blocks.map((block) => {
         switch (block.type) {
+          case 'headline':
+            return (
+              <Text key={block.id} variant="storyTitle" accessibilityRole="header" style={styles.heading}>
+                {block.text}
+              </Text>
+            );
+          case 'intro':
+            return (
+              <Text key={block.id} variant="storyBody" color="textMuted" style={styles.italic}>
+                {block.text}
+              </Text>
+            );
           case 'heading':
             return (
               <Text key={block.id} variant="storyHeading" accessibilityRole="header" style={styles.heading}>
@@ -33,11 +73,7 @@ export function StoryRenderer({ blocks, sources }: Props) {
               </Text>
             );
           case 'paragraph':
-            return (
-              <Text key={block.id} variant="storyBody">
-                {block.text}
-              </Text>
-            );
+            return <RichText key={block.id} text={block.text} />;
           case 'image':
             return (
               <View key={block.id} style={styles.figure}>
@@ -83,6 +119,7 @@ export function StoryRenderer({ blocks, sources }: Props) {
                 )}
               </View>
             );
+          // Suggested actions are published in the "What you can do" section, not inline.
           default:
             return null;
         }
@@ -99,4 +136,7 @@ const styles = StyleSheet.create({
   stat: { borderLeftWidth: 3, paddingLeft: space.lg, paddingVertical: space.xs, gap: space.xs, marginVertical: space.sm },
   quote: { borderTopWidth: StyleSheet.hairlineWidth, borderBottomWidth: StyleSheet.hairlineWidth, paddingVertical: space.lg, gap: space.sm, marginVertical: space.sm },
   quoteText: { fontFamily: fonts.serifItalic },
+  bold: { fontFamily: fonts.serifSemibold },
+  italic: { fontFamily: fonts.serifItalic },
+  link: { textDecorationLine: 'underline' },
 });

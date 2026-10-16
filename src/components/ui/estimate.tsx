@@ -8,9 +8,8 @@ import { formatMoney, formatReachRange, roundEstimate } from '@/lib/format';
 import { radius, space, useTheme, type TypeVariant } from '@/theme';
 
 import { AnimatedNumber } from './animated-number';
-import { Badge } from './badge';
 import { Divider } from './divider';
-import { FlaskIcon, InfoIcon } from './icons';
+import { InfoIcon } from './icons';
 import { PressableScale } from './pressable-scale';
 import { Sheet } from './sheet';
 import { Text } from './text';
@@ -30,7 +29,7 @@ export function ReachAssumptionsSheet({ open, onClose }: { open: boolean; onClos
     <Sheet open={open} onClose={onClose} title="How reach is estimated" subtitle="An estimate, not a guarantee">
       <View style={styles.sheetBody}>
         <Text variant="body" color="textMuted">
-          {`Each $1 of ad budget reaches about ${Math.round(peoplePerDollar())} people with our demo assumptions. A $100 contribution puts $${(
+          {`Each $1 of ad budget reaches about ${Math.round(peoplePerDollar())} people with our current assumptions. A $100 contribution puts $${(
             (100 * (1 - demo.fees.platformPct))
           ).toFixed(0)} into ads, reaching roughly ${formatReachRange(example)} people.`}
         </Text>
@@ -53,7 +52,6 @@ export function ReachAssumptionsSheet({ open, onClose }: { open: boolean; onClos
           Actual reach depends on ad inventory, prices, targeting, delivery and performance. Verified
           delivery figures appear in the campaign report once ads run.
         </Text>
-        <Badge label="Demo assumptions" icon={FlaskIcon} />
       </View>
     </Sheet>
   );
@@ -112,11 +110,6 @@ export function EstimatedReach({ amountCents, variant = 'subhead', suffix = 'peo
       <ReachAssumptionsSheet open={open} onClose={() => setOpen(false)} />
     </>
   );
-}
-
-/** Marks seeded figures so nobody mistakes demo data for real activity. */
-export function DemoBadge({ label = 'Demo data' }: { label?: string }) {
-  return <Badge label={label} icon={FlaskIcon} />;
 }
 
 const styles = StyleSheet.create({

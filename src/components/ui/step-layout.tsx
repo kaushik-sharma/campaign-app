@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, Ref } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import Animated, { useAnimatedKeyboard, useAnimatedStyle } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -6,10 +6,18 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { layout, space, useTheme } from '@/theme';
 
 /**
- * One backing step: scrolling content with a pinned footer that rides above the keyboard
+ * One step of a multi-step flow: scrolling content with a pinned footer that rides above the keyboard
  * (tracked on the UI thread, so it moves in step with the keyboard on both platforms).
  */
-export function StepLayout({ children, footer }: { children: ReactNode; footer?: ReactNode }) {
+export function StepLayout({
+  children,
+  footer,
+  scrollRef,
+}: {
+  children: ReactNode;
+  footer?: ReactNode;
+  scrollRef?: Ref<ScrollView>;
+}) {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const keyboard = useAnimatedKeyboard();
@@ -21,6 +29,7 @@ export function StepLayout({ children, footer }: { children: ReactNode; footer?:
   return (
     <Animated.View style={[styles.root, rootStyle]}>
       <ScrollView
+        ref={scrollRef}
         style={styles.root}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"

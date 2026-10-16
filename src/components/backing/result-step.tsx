@@ -18,7 +18,7 @@ import { duration, space } from '@/theme';
 
 import { Confetti } from './confetti';
 import { PaymentStatusIcon } from './payment-status-icon';
-import { StepLayout } from './step-layout';
+import { StepLayout } from '@/components/ui/step-layout';
 
 const money = (cents: number) => formatMoney(cents, { showCents: true });
 const enter = (i: number) => FadeInDown.delay(500 + i * 80).duration(duration.slow);
