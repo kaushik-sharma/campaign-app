@@ -16,6 +16,7 @@ import type { CampaignService } from '../contracts';
 import { ServiceError } from '../errors';
 import { mockAuthService } from './auth';
 import { db } from './db';
+import { GUEST } from './events';
 import { advanceDue } from './lifecycle';
 import { simulateRequest } from './network';
 
@@ -237,5 +238,19 @@ export const mockCampaignService: CampaignService = {
       db.setEngagement(user.id, id, next);
       return next;
     });
+  },
+
+  listForMe(kind, opts) {
+    return simulateRequest(async () => {
+      await db.ready();
+      advanceDue();
+      const user = (await mockAuthService.getSession())?.user ?? null;
+      const ids =
+        kind === 'backed' ? db.backedBy(user?.id ?? GUEST) : user ? db.engagedBy(user.id, kind) : [];
+      return ids
+        .map((id) => db.tables.campaigns.get(id))
+        .filter((c): c is Campaign => !!c && isPublic(c.status))
+        .map(toSummary);
+    }, opts);
   },
 };

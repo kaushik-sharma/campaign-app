@@ -10,7 +10,7 @@ import type { ActivityService, ContributionService } from '../contracts';
 import { ServiceError } from '../errors';
 import { mockAuthService } from './auth';
 import { db } from './db';
-import { addEvent, GUEST, randomId } from './events';
+import { addEvent, GUEST, notifyStakeholders, randomId } from './events';
 import { advanceDue } from './lifecycle';
 import { simulateRequest } from './network';
 
@@ -37,7 +37,12 @@ const ownerOf = (c: Contribution) => c.userId ?? GUEST;
 /** Activity for one payment attempt, in the backer's own feed. */
 function recordOutcome(c: Contribution, confirmedLater = false) {
   const amount = formatMoney(c.amountCents, { showCents: true });
-  const base = { campaignId: c.campaignId, contributionId: c.id };
+  const base = {
+    campaignId: c.campaignId,
+    contributionId: c.id,
+    group: 'backed' as const,
+    link: { screen: 'receipt' as const, id: c.id },
+  };
   switch (c.status) {
     case 'succeeded':
       addEvent(ownerOf(c), {
@@ -85,18 +90,27 @@ function recordMilestones(campaign: Campaign, beforeCents: number, afterCents: n
   if (top === undefined) return;
 
   // Only the highest milestone crossed, so one large contribution doesn't produce a burst of events.
-  const owners = new Set([backer, ...db.followersOf(campaign.id)]);
-  for (const owner of owners) {
-    addEvent(owner, {
+  notifyStakeholders(
+    campaign.id,
+    (group) => ({
       campaignId: campaign.id,
+      link: group === 'mine' ? { screen: 'manage', id: campaign.id } : { screen: 'campaign', id: campaign.id },
       kind: top >= 1 ? 'goal-reached' : 'milestone',
-      title: top >= 1 ? `${campaign.title} reached its goal` : `${campaign.title} is ${formatPercent(top)} funded`,
+      title:
+        group === 'mine'
+          ? top >= 1
+            ? `Your campaign reached its goal`
+            : `Your campaign is ${formatPercent(top)} funded`
+          : top >= 1
+            ? `${campaign.title} reached its goal`
+            : `${campaign.title} is ${formatPercent(top)} funded`,
       body:
         top >= 1
-          ? 'Funding is complete. Ad setup and review with distribution partners begins next.'
+          ? `“${campaign.title}” is fully funded. Ad setup with distribution partners begins next.`
           : `${formatMoney(afterCents)} of ${formatMoney(campaign.goalCents)} raised so far.`,
-    });
-  }
+    }),
+    [backer],
+  );
 }
 
 /** Counts a successful payment toward the campaign: raised, backers and, at 100%, its status. */

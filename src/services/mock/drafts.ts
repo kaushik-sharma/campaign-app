@@ -16,7 +16,7 @@ import { ServiceError } from '../errors';
 import { mockAuthService } from './auth';
 import { toSummary } from './campaigns';
 import { db } from './db';
-import { addEvent, randomId } from './events';
+import { addEvent, notifyStakeholders, randomId } from './events';
 import { advanceDue } from './lifecycle';
 import { simulateRequest } from './network';
 
@@ -127,22 +127,29 @@ export const mockDraftService: DraftService = {
 
       const now = new Date().toISOString();
       const existing = draft.campaignId ? db.tables.campaigns.get(draft.campaignId) : undefined;
-      if (existing && existing.status !== 'changes-requested') {
-        throw new ServiceError('conflict', 'This campaign has already been submitted.');
+      // Resubmission: after changes were requested, or after editing a live campaign (material
+      // changes go back to review; money raised so far is kept).
+      if (existing && !['changes-requested', 'funding', 'goal-reached'].includes(existing.status)) {
+        throw new ServiceError('conflict', 'This campaign can’t be resubmitted in its current state.');
       }
       const campaignId = existing?.id ?? randomId('c_');
-      const campaign: Campaign = draftToCampaign(draft, {
+      const built = draftToCampaign(draft, {
         id: campaignId,
         creatorId: user.id,
         status: 'submitted',
         now,
         history: [...(existing?.history ?? []), { status: 'submitted', at: now }],
       });
+      const campaign: Campaign = existing
+        ? { ...built, raisedCents: existing.raisedCents, backerCount: existing.backerCount, updates: existing.updates }
+        : built;
       db.putCreatedCampaign(campaign);
       db.putDraft({ ...draft, ownerId: user.id, campaignId, updatedAt: now });
       addEvent(user.id, {
         campaignId,
         opensStatus: true,
+        group: 'mine',
+        link: { screen: 'manage', id: campaignId },
         kind: 'submitted',
         title: existing ? 'Campaign resubmitted' : 'Campaign submitted for review',
         body: `“${campaign.title}” is with our review team. You’ll hear back here when there’s a decision.`,
@@ -158,7 +165,7 @@ async function ownCampaign(id: string): Promise<Campaign> {
   const user = await currentUser();
   const campaign = db.tables.campaigns.get(id);
   if (!user) throw new ServiceError('unauthorized', 'Sign in to see your campaigns.');
-  if (!campaign || campaign.creator.id !== user.id) throw new ServiceError('not-found', 'Campaign not found');
+  if (!campaign || db.ownerOf(id) !== user.id) throw new ServiceError('not-found', 'Campaign not found');
   return campaign;
 }
 
@@ -169,16 +176,39 @@ export const mockCreatorService: CreatorService = {
       advanceDue();
       const user = await currentUser();
       if (!user) return [];
+      const lastChange = (c: Campaign) => c.history.at(-1)?.at ?? c.submittedAt ?? '';
       return db
-        .createdCampaigns()
-        .filter((c) => c.creator.id === user.id)
-        .sort((a, b) => (b.submittedAt ?? '').localeCompare(a.submittedAt ?? ''))
+        .campaignsOwnedBy(user.id)
+        .sort((a, b) => lastChange(b).localeCompare(lastChange(a)))
         .map(toSummary);
     }, opts);
   },
 
   getCampaign(id, opts) {
     return simulateRequest(() => ownCampaign(id), opts);
+  },
+
+  postUpdate(campaignId, { title, body }) {
+    return simulateRequest(async () => {
+      const campaign = await ownCampaign(campaignId);
+      if (title.trim().length < 3) throw new ServiceError('validation', 'Add a title', { title: 'Add a title' });
+      if (body.trim().length < 10) throw new ServiceError('validation', 'Write a little more', { body: 'Write at least 10 characters' });
+      const update = { id: randomId('u_'), title: title.trim(), body: body.trim(), at: new Date().toISOString() };
+      const updates = [update, ...campaign.updates];
+      db.patchCampaign(campaignId, { updates });
+      notifyStakeholders(campaignId, (group) =>
+        group === 'mine'
+          ? null
+          : {
+              campaignId,
+              link: { screen: 'campaign', id: campaignId },
+              kind: 'update-posted',
+              title: `Update from ${campaign.creator.name}`,
+              body: `${update.title}: ${update.body.length > 90 ? `${update.body.slice(0, 89)}…` : update.body}`,
+            },
+      );
+      return { ...campaign, updates };
+    });
   },
 
   draftFor(campaignId, opts) {

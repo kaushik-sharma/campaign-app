@@ -206,7 +206,8 @@ export default function SubmittedScreen() {
             </View>
           )}
 
-          <Button label="Done" variant="secondary" fullWidth onPress={() => router.back()} />
+          <Button label="Manage campaign" variant="secondary" fullWidth onPress={() => router.replace({ pathname: '/manage/[id]', params: { id: c.id } })} />
+          <Button label="Done" variant="ghost" fullWidth onPress={() => router.back()} />
         </ScrollView>
       )}
     </View>

@@ -15,6 +15,7 @@ export const campaignKeys = {
   detail: (id: string) => [...campaignKeys.all, 'detail', id] as const,
   feedback: (id: string) => [...campaignKeys.all, 'feedback', id] as const,
   engagement: (id: string, userId: string | null) => [...campaignKeys.all, 'engagement', id, userId] as const,
+  forMe: (kind: string, userId: string | null) => [...campaignKeys.all, 'for-me', kind, userId] as const,
 };
 
 export function useCampaignFeed(params: ListParams = {}) {
@@ -88,6 +89,18 @@ export function useSetEngagement(id: string) {
     onError: (_error, _patch, context) => queryClient.setQueryData(key, context?.previous),
     onSuccess: (saved) => queryClient.setQueryData(key, saved),
     // Also refresh other users' keys: an action started as a guest finishes after sign-in.
-    onSettled: () => queryClient.invalidateQueries({ queryKey: [...campaignKeys.all, 'engagement', id] }),
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: [...campaignKeys.all, 'engagement', id] });
+      void queryClient.invalidateQueries({ queryKey: [...campaignKeys.all, 'for-me'] });
+    },
+  });
+}
+
+/** Campaigns I backed, follow or saved. */
+export function useMyCampaignList(kind: 'backed' | 'following' | 'saved') {
+  const userId = useCurrentUser()?.id ?? null;
+  return useQuery({
+    queryKey: campaignKeys.forMe(kind, userId),
+    queryFn: ({ signal }) => services.campaigns.listForMe(kind, { signal }),
   });
 }

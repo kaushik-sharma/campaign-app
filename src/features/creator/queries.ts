@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import type { CampaignStatus } from '@/domain/lifecycle';
 import { useCurrentUser } from '@/features/auth/auth-provider';
@@ -38,5 +38,17 @@ export function useDraftForCampaign(id: string, enabled: boolean) {
     queryKey: creatorKeys.draftFor(id),
     queryFn: ({ signal }) => services.creator.draftFor(id, { signal }),
     enabled,
+  });
+}
+
+export function usePostUpdate(campaignId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (update: { title: string; body: string }) => services.creator.postUpdate(campaignId, update),
+    onSuccess: (campaign) => {
+      queryClient.setQueryData(creatorKeys.detail(campaignId), campaign);
+      // The public page shows updates too.
+      void queryClient.invalidateQueries({ queryKey: ['campaigns', 'detail', campaignId] });
+    },
   });
 }

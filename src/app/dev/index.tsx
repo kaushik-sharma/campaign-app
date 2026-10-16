@@ -6,18 +6,42 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Divider } from '@/components/ui/divider';
-import { ArrowClockwiseIcon, FastForwardIcon, FlaskIcon, PaletteIcon, TimerIcon, WifiSlashIcon } from '@/components/ui/icons';
+import { ArrowClockwiseIcon, BellIcon, FastForwardIcon, FlaskIcon, PaletteIcon, TimerIcon, WifiSlashIcon } from '@/components/ui/icons';
 import { ListRow } from '@/components/ui/list-row';
 import { Screen } from '@/components/ui/screen';
 import { Section } from '@/components/ui/section';
+import { Sheet } from '@/components/ui/sheet';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Switch } from '@/components/ui/switch';
 import { Text } from '@/components/ui/text';
 import { demo } from '@/config/demo';
+import { activityGroupLabels, activityGroupOf } from '@/domain/activity';
+import type { ActivityEvent, ActivityKind } from '@/domain/types';
 import { useDevControls } from '@/features/dev/use-dev-controls';
 import type { ReviewDecision } from '@/services';
 import { toast } from '@/stores/toast';
 import { layout, space } from '@/theme';
+
+const NOTIFICATION_KINDS: [ActivityKind, string][] = [
+  ['payment-succeeded', 'Payment succeeded'],
+  ['payment-pending', 'Payment pending'],
+  ['payment-failed', 'Payment declined'],
+  ['payment-cancelled', 'Payment cancelled'],
+  ['refund', 'Refund issued'],
+  ['milestone', 'Funding milestone'],
+  ['goal-reached', 'Goal reached'],
+  ['funding-ended', 'Funding closed'],
+  ['distribution-started', 'Ads live'],
+  ['report-ready', 'Final report ready'],
+  ['update-posted', 'Creator update'],
+  ['submitted', 'Campaign submitted'],
+  ['approved', 'Campaign approved'],
+  ['changes-requested', 'Changes requested'],
+  ['rejected', 'Campaign not approved'],
+  ['funding-open', 'Campaign live'],
+  ['welcome', 'Welcome'],
+  ['sign-in', 'New sign-in'],
+];
 
 type FailurePreset = 'off' | 'low' | 'high' | 'always';
 const FAILURE_RATES: Record<FailurePreset, number> = { off: 0, low: 0.05, high: 0.3, always: 1 };
@@ -31,6 +55,7 @@ function presetFor(rate: number): FailurePreset {
 export default function DevScreen() {
   const dev = useDevControls();
   const [resetting, setResetting] = useState(false);
+  const [notifyOpen, setNotifyOpen] = useState(false);
 
   const confirmReset = () =>
     Alert.alert(
@@ -158,6 +183,17 @@ export default function DevScreen() {
         </Card>
       </Section>
 
+      <Section title="Notifications">
+        <Card padded={false}>
+          <ListRow
+            icon={BellIcon}
+            title="Send a test notification"
+            subtitle="Any type, about a campaign you created, backed or follow"
+            onPress={() => setNotifyOpen(true)}
+          />
+        </Card>
+      </Section>
+
       <Section title="Design">
         <Card padded={false}>
           <ListRow
@@ -172,6 +208,24 @@ export default function DevScreen() {
       <Section title="Data">
         <Button label="Reset sample data" variant="destructive" fullWidth loading={resetting} onPress={confirmReset} />
       </Section>
+      <Sheet open={notifyOpen} onClose={() => setNotifyOpen(false)} title="Send a test notification" scrollable>
+        <View>
+          {NOTIFICATION_KINDS.map(([kind, label], i) => (
+            <View key={kind}>
+              {i > 0 && <Divider />}
+              <ListRow
+                title={label}
+                subtitle={activityGroupLabels[activityGroupOf({ kind } as ActivityEvent)]}
+                onPress={async () => {
+                  setNotifyOpen(false);
+                  await dev.triggerNotification(kind);
+                  toast('Sent. Check Activity.', 'success');
+                }}
+              />
+            </View>
+          ))}
+        </View>
+      </Sheet>
     </Screen>
   );
 }

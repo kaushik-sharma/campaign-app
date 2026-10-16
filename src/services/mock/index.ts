@@ -5,6 +5,7 @@ import { mockAiService } from './ai';
 import { mockActivityService, mockContributionService } from './contributions';
 import { mockCreatorService, mockDraftService } from './drafts';
 import { advanceNow, lifecycleControls } from './lifecycle';
+import { mockReportService, triggerNotification } from './notifications';
 import { db } from './db';
 import { networkControls } from './network';
 
@@ -17,6 +18,7 @@ export function createMockServices(): Services {
     drafts: mockDraftService,
     creator: mockCreatorService,
     ai: mockAiService,
+    reports: mockReportService,
     dev: {
       available: true,
       getNetwork: networkControls.get,
@@ -29,6 +31,7 @@ export function createMockServices(): Services {
         await db.ready();
         return advanceNow(id);
       },
+      triggerNotification,
     },
   };
 }

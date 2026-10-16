@@ -3,12 +3,16 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { AnimatedNumber } from '@/components/ui/animated-number';
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Divider } from '@/components/ui/divider';
 import {
+  BellIcon,
+  BookmarkSimpleIcon,
   BookOpenIcon,
+  ChartBarIcon,
   EnvelopeSimpleIcon,
   FileTextIcon,
   HandshakeIcon,
@@ -26,13 +30,16 @@ import {
   WrenchIcon,
 } from '@/components/ui/icons';
 import { ListRow } from '@/components/ui/list-row';
+import { PressableScale } from '@/components/ui/pressable-scale';
 import { Screen } from '@/components/ui/screen';
 import { Section } from '@/components/ui/section';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Switch } from '@/components/ui/switch';
 import { Text } from '@/components/ui/text';
 import type { InfoSlug } from '@/content/info';
-import { useAuth } from '@/features/auth/auth-provider';
+import { useAuth, useCurrentUser } from '@/features/auth/auth-provider';
+import { useMyCampaignList } from '@/features/campaigns/queries';
+import { useMyCampaigns } from '@/features/creator/queries';
 import { formatDate } from '@/lib/format';
 import { usePreferences, type AppearancePreference } from '@/stores/preferences';
 import { toast } from '@/stores/toast';
@@ -50,11 +57,24 @@ const HELP_LINKS: { slug: InfoSlug; title: string; icon: IconComponent }[] = [
   { slug: 'privacy', title: 'Privacy', icon: LockSimpleIcon },
 ];
 
+function Stat({ value, label, onPress }: { value: number | undefined; label: string; onPress: () => void }) {
+  return (
+    <PressableScale onPress={onPress} scaleTo={0.95} accessibilityLabel={`${value ?? 0} ${label}`} style={styles.stat}>
+      <AnimatedNumber value={value ?? 0} variant="title2" animateOnMount={false} />
+      <Text variant="caption" color="textMuted">
+        {label}
+      </Text>
+    </PressableScale>
+  );
+}
+
 function AccountHeader() {
-  const { session, signOut } = useAuth();
+  const { session } = useAuth();
   const { colors } = useTheme();
-  const [signingOut, setSigningOut] = useState(false);
   const user = session?.user;
+  const created = useMyCampaigns();
+  const backed = useMyCampaignList('backed');
+  const saved = useMyCampaignList('saved');
 
   if (!user) {
     return (
@@ -87,23 +107,35 @@ function AccountHeader() {
           </Text>
         </View>
       </View>
-      <Button
-        label="Sign out"
-        variant="secondary"
-        icon={SignOutIcon}
-        fullWidth
-        loading={signingOut}
-        onPress={async () => {
-          setSigningOut(true);
-          try {
-            await signOut();
-            toast('Signed out');
-          } finally {
-            setSigningOut(false);
-          }
-        }}
-      />
+      <View style={[styles.stats, { borderTopColor: colors.border }]}>
+        <Stat value={created.data?.length} label="Created" onPress={() => router.push('/dashboard')} />
+        <Stat value={backed.data?.length} label="Backed" onPress={() => router.push({ pathname: '/collection/[kind]', params: { kind: 'backed' } })} />
+        <Stat value={saved.data?.length} label="Saved" onPress={() => router.push({ pathname: '/collection/[kind]', params: { kind: 'saved' } })} />
+      </View>
     </Card>
+  );
+}
+
+function SignOutButton() {
+  const { signOut } = useAuth();
+  const [signingOut, setSigningOut] = useState(false);
+  return (
+    <Button
+      label="Sign out"
+      variant="secondary"
+      icon={SignOutIcon}
+      fullWidth
+      loading={signingOut}
+      onPress={async () => {
+        setSigningOut(true);
+        try {
+          await signOut();
+          toast('Signed out');
+        } finally {
+          setSigningOut(false);
+        }
+      }}
+    />
   );
 }
 
@@ -116,6 +148,7 @@ export default function ProfileScreen() {
   const setShowName = usePreferences((s) => s.setShowNameWhenBacking);
 
   const { colors } = useTheme();
+  const user = useCurrentUser();
   const version = Constants.expoConfig?.version ?? '1.0.0';
 
   return (
@@ -126,6 +159,23 @@ export default function ProfileScreen() {
 
       <Section title="Your activity">
         <Card padded={false}>
+          {user && (
+            <>
+              <ListRow
+                icon={ChartBarIcon}
+                title="Creator dashboard"
+                subtitle="Your campaigns, drafts and what to do next"
+                onPress={() => router.push('/dashboard')}
+              />
+              <Divider inset={layout.cardPadding} />
+            </>
+          )}
+          <ListRow icon={HandshakeIcon} title="Backed" onPress={() => router.push({ pathname: '/collection/[kind]', params: { kind: 'backed' } })} />
+          <Divider inset={layout.cardPadding} />
+          <ListRow icon={BellIcon} title="Following" onPress={() => router.push({ pathname: '/collection/[kind]', params: { kind: 'following' } })} />
+          <Divider inset={layout.cardPadding} />
+          <ListRow icon={BookmarkSimpleIcon} title="Saved" onPress={() => router.push({ pathname: '/collection/[kind]', params: { kind: 'saved' } })} />
+          <Divider inset={layout.cardPadding} />
           <ListRow
             icon={ReceiptIcon}
             title="Payments & receipts"
@@ -168,6 +218,13 @@ export default function ProfileScreen() {
               <Switch value={showName} onValueChange={setShowName} accessibilityLabel="Show my name when I back" />
             }
           />
+          <Divider inset={layout.cardPadding} />
+          <ListRow
+            icon={BellIcon}
+            title="Notifications"
+            subtitle="Choose what appears in Activity"
+            onPress={() => router.push('/settings/notifications')}
+          />
         </Card>
       </Section>
 
@@ -195,6 +252,12 @@ export default function ProfileScreen() {
         </Section>
       )}
 
+      {user && (
+        <Section>
+          <SignOutButton />
+        </Section>
+      )}
+
       {/* Long-press the version to open demo controls in production builds. */}
       <Pressable
         onLongPress={() => router.push('/dev')}
@@ -213,6 +276,8 @@ const styles = StyleSheet.create({
   account: { gap: space.lg },
   guestIcon: { width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' },
   userRow: { flexDirection: 'row', gap: space.lg, alignItems: 'center' },
+  stats: { flexDirection: 'row', borderTopWidth: StyleSheet.hairlineWidth, paddingTop: space.md },
+  stat: { flex: 1, alignItems: 'center', gap: 2 },
   accountText: { flex: 1, gap: 2 },
   appearance: { padding: layout.cardPadding, gap: space.md },
   appearanceLabel: { flexDirection: 'row', alignItems: 'center', gap: space.sm },

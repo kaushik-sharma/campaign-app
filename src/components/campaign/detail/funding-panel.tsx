@@ -1,11 +1,14 @@
+import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
 import { AnimatedNumber } from '@/components/ui/animated-number';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { EstimatedReach } from '@/components/ui/estimate';
+import { FileTextIcon } from '@/components/ui/icons';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { Text } from '@/components/ui/text';
+import { hasReport } from '@/domain/creator';
 import { acceptsContributions, statusMeta } from '@/domain/lifecycle';
 import { fundingProgress } from '@/domain/money';
 import type { Campaign } from '@/domain/types';
@@ -79,11 +82,22 @@ export function FundingPanel({ campaign, onBack, preview = false }: Props) {
           {!preview && <FollowButton campaignId={campaign.id} size={56} />}
         </View>
       ) : (
-        <View style={styles.closed}>
-          <Text variant="subhead" color="textMuted" style={styles.closedText}>
-            {statusMeta[campaign.status].next}
-          </Text>
-          <FollowButton campaignId={campaign.id} />
+        <View style={styles.closedWrap}>
+          <View style={styles.closed}>
+            <Text variant="subhead" color="textMuted" style={styles.closedText}>
+              {statusMeta[campaign.status].next}
+            </Text>
+            {!preview && <FollowButton campaignId={campaign.id} />}
+          </View>
+          {!preview && hasReport(campaign.status) && (
+            <Button
+              label={campaign.status === 'completed' ? 'Final report' : 'Delivery report'}
+              variant="secondary"
+              icon={FileTextIcon}
+              fullWidth
+              onPress={() => router.push({ pathname: '/report/[id]', params: { id: campaign.id } })}
+            />
+          )}
         </View>
       )}
     </Card>
@@ -104,6 +118,7 @@ const styles = StyleSheet.create({
   reach: { gap: 2 },
   actions: { flexDirection: 'row', gap: space.sm, alignItems: 'center' },
   primary: { flex: 1, alignSelf: 'auto' },
+  closedWrap: { gap: space.md },
   closed: { flexDirection: 'row', alignItems: 'center', gap: space.md },
   closedText: { flex: 1 },
 });

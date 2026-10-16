@@ -13,8 +13,10 @@ import {
 } from '@/components/ui/icons';
 import { PressableScale } from '@/components/ui/pressable-scale';
 import { Text } from '@/components/ui/text';
+import { activityGroupOf } from '@/domain/activity';
 import { useActivity } from '@/features/activity/queries';
 import { haptics } from '@/lib/haptics';
+import { usePreferences } from '@/stores/preferences';
 import { layout, radius, spring, useTheme } from '@/theme';
 
 const TABS: Record<string, { label: string; icon: IconComponent }> = {
@@ -33,7 +35,8 @@ const INDICATOR_WIDTH = 56;
  */
 export function TabBar({ state, navigation, insets }: BottomTabBarProps) {
   const { colors } = useTheme();
-  const unread = useActivity().data?.some((e) => !e.read) ?? false;
+  const enabled = usePreferences((s) => s.notifications);
+  const unread = useActivity().data?.some((e) => !e.read && enabled[activityGroupOf(e)]) ?? false;
   const itemWidth = useSharedValue(0);
   const position = useSharedValue(state.index);
 

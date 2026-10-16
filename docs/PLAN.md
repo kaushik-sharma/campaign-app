@@ -44,7 +44,7 @@ Everything must run in **Expo Go**. Not in Expo Go → worked around:
 | 2 | Home, Explore, Campaign Detail (+ hero transition, imagery, stories) | 8h | done |
 | 3 | Back a Campaign (amount → review → simulated checkout → result), receipts, follow/save | 4h | done |
 | 4 | 5-step creation (Basics → Story → Campaign & Ad Visuals → Reach → Submit), voice/AI demo, autosave, lifecycle simulator | 8.5h | done |
-| 5 | Activity, Profile, Creator Dashboard, Reports, info pages | 5.5h | |
+| 5 | Activity, Profile, Creator Dashboard, Reports, info pages | 5.5h | done |
 | 6 | Real auth (Supabase), hardening, APK (staged), demo video | 4h | |
 
 Every phase ends running in Expo Go, lint + typecheck clean, no dead taps, both themes correct.

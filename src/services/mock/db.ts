@@ -29,6 +29,18 @@ type Overlay = {
   created: Record<string, Campaign>;
 };
 
+/**
+ * Seeded campaigns the demo account manages, so its dashboard shows every stage from the start.
+ * Everything else is owned by its (fictional) seeded creator.
+ */
+const SEED_OWNERS: Record<string, string> = {
+  'riverside-wetlands': 'u-demo',
+  'heat-check-elders': 'u-demo',
+  'bees-need-weeds': 'u-demo',
+  'neighborhood-cleanup': 'u-demo',
+  'lead-pipes': 'u-demo',
+};
+
 const emptyOverlay = (): Overlay => ({
   campaignPatches: {},
   feedback: {},
@@ -168,6 +180,38 @@ export const db = {
     delete overlay.campaignPatches[campaign.id];
     tables.campaigns.set(campaign.id, campaign);
     schedulePersist();
+  },
+
+  /** The user who manages a campaign: its creator for app-created ones, or a seeded owner. */
+  ownerOf(campaignId: string): string | null {
+    return overlay.created[campaignId]?.creator.id ?? SEED_OWNERS[campaignId] ?? null;
+  },
+
+  /** Campaigns a user manages, in any status. */
+  campaignsOwnedBy(userId: string): Campaign[] {
+    return [...tables.campaigns.values()].filter((c) => this.ownerOf(c.id) === userId);
+  },
+
+  /** Activity owners (user ids or `guest`) with a successful contribution to a campaign. */
+  backersOf(campaignId: string): string[] {
+    const owners = overlay.contributions
+      .filter((c) => c.campaignId === campaignId && c.status === 'succeeded')
+      .map((c) => c.userId ?? 'guest');
+    return [...new Set(owners)];
+  },
+
+  /** Ids of campaigns a user (or `guest`) has successfully backed. */
+  backedBy(owner: string): string[] {
+    const ids = overlay.contributions
+      .filter((c) => c.status === 'succeeded' && (c.userId ?? 'guest') === owner)
+      .map((c) => c.campaignId);
+    return [...new Set(ids)];
+  },
+
+  engagedBy(userId: string, field: 'following' | 'saved'): string[] {
+    return Object.entries(overlay.engagement[userId] ?? {})
+      .filter(([, e]) => e[field])
+      .map(([id]) => id);
   },
 
   createdCampaigns(): Campaign[] {

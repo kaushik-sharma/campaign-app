@@ -35,7 +35,13 @@ const indexOf = (s: DraftStep) => DRAFT_STEPS.indexOf(s);
  * Back (button, header or Android back) never loses anything.
  */
 export default function DraftEditorScreen() {
-  const { id, fromVoice, resubmit } = useLocalSearchParams<{ id: string; fromVoice?: string; resubmit?: string }>();
+  const { id, fromVoice, resubmit, step: openAt } = useLocalSearchParams<{
+    id: string;
+    fromVoice?: string;
+    resubmit?: string;
+    /** Open on this step, e.g. the one reviewer feedback is about. */
+    step?: DraftStep;
+  }>();
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
   const query = useDraft(id);
@@ -46,7 +52,9 @@ export default function DraftEditorScreen() {
 
   const [draft, setDraft] = useState<Draft | null>(null);
   // Take the server copy once; from then on the editor owns the draft and autosaves it.
-  if (!draft && query.data) setDraft(query.data);
+  if (!draft && query.data) {
+    setDraft(openAt && DRAFT_STEPS.includes(openAt) ? { ...query.data, step: openAt } : query.data);
+  }
 
   const [direction, setDirection] = useState<1 | -1>(1);
   const [attempted, setAttempted] = useState<Partial<Record<DraftStep, boolean>>>({});

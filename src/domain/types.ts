@@ -89,6 +89,8 @@ export type StatusEvent = {
   status: CampaignStatus;
   at: ISODate;
   note?: string;
+  /** For "changes requested": the creation step the feedback is about, reopened by "Edit & resubmit". */
+  editStep?: 'basics' | 'story' | 'visuals' | 'reach' | 'submit';
 };
 
 export type CampaignUpdate = {
@@ -239,7 +241,22 @@ export type ActivityKind =
   | 'approved'
   | 'changes-requested'
   | 'rejected'
-  | 'funding-open';
+  | 'funding-open'
+  | 'funding-ended'
+  | 'refund'
+  | 'distribution-started'
+  | 'report-ready'
+  | 'update-posted'
+  | 'welcome'
+  | 'sign-in';
+
+/** Activity filter groups: your own campaigns, ones you backed, ones you follow, your account. */
+export type ActivityGroup = 'mine' | 'backed' | 'following' | 'account';
+
+/** Where tapping an activity item goes. */
+export type ActivityLink =
+  | { screen: 'receipt' | 'manage' | 'report' | 'campaign'; id: string }
+  | { screen: 'payments' | 'profile' };
 
 export type ActivityEvent = {
   id: string;
@@ -253,6 +270,8 @@ export type ActivityEvent = {
   contributionId?: string;
   /** For the creator's own campaign events: opens its review status instead of the public page. */
   opensStatus?: boolean;
+  group?: ActivityGroup;
+  link?: ActivityLink;
 };
 
 /** The current reader's relationship to a campaign. */

@@ -6,6 +6,8 @@ import { readJSON, writeJSON } from '@/lib/storage';
 
 import type { AuthChangeListener, AuthService } from '../contracts';
 import { ServiceError } from '../errors';
+import { db } from './db';
+import { addEvent } from './events';
 import { simulateRequest } from './network';
 
 /**
@@ -66,6 +68,22 @@ function validate<T>(schema: z.ZodType<T>, input: unknown): T {
   return parsed.data;
 }
 
+/** Account activity: a welcome on sign-up, and a note for each new sign-in. */
+async function recordAccountEvent(userId: string, kind: 'welcome' | 'sign-in') {
+  await db.ready();
+  addEvent(userId, {
+    campaignId: '',
+    group: 'account',
+    link: { screen: 'profile' },
+    kind,
+    title: kind === 'welcome' ? 'Welcome to Campaigns' : 'New sign-in',
+    body:
+      kind === 'welcome'
+        ? 'Follow campaigns to get their milestones here, and create your own from the Create tab.'
+        : 'Your account was signed in on this device. If this wasn’t you, change your password.',
+  });
+}
+
 export const mockAuthService: AuthService = {
   async getSession() {
     if (current) return current;
@@ -83,6 +101,7 @@ export const mockAuthService: AuthService = {
       }
       const session = createSession(user);
       await setSession(session);
+      await recordAccountEvent(user.id, 'sign-in');
       return session;
     });
   },
@@ -106,6 +125,7 @@ export const mockAuthService: AuthService = {
       await writeJSON(USERS_KEY, [...users, user]);
       const session = createSession(user);
       await setSession(session);
+      await recordAccountEvent(user.id, 'welcome');
       return session;
     });
   },

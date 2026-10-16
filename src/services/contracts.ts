@@ -3,7 +3,7 @@
  * The mock (`./mock`) and the future Supabase implementation (`./supabase`) both satisfy them,
  * so swapping backends never touches UI code.
  *
- * Report contracts are added in the phase that introduces them (see docs/PLAN.md).
+ * Supabase replaces these one service at a time behind `src/services/index.ts`.
  */
 import type { CampaignStatus } from '@/domain/lifecycle';
 import type {
@@ -14,8 +14,10 @@ import type {
   MediaAsset,
   VoiceAnswers,
 } from '@/domain/draft';
+import type { CampaignReport } from '@/domain/report';
 import type {
   ActivityEvent,
+  ActivityKind,
   Campaign,
   CampaignFeedback,
   CampaignListParams,
@@ -57,6 +59,13 @@ export interface CampaignService {
   getEngagement(id: string, opts?: Opts): Promise<Engagement>;
   /** Requires a session (`unauthorized` otherwise). */
   setEngagement(id: string, patch: Partial<Engagement>): Promise<Engagement>;
+  /** Public campaigns the reader backed, follows or saved. Backed works for guests on this device. */
+  listForMe(kind: 'backed' | 'following' | 'saved', opts?: Opts): Promise<CampaignSummary[]>;
+}
+
+/** Delivery reports: public for any public campaign, so backers can see where money went. */
+export interface ReportService {
+  get(campaignId: string, opts?: Opts): Promise<CampaignReport>;
 }
 
 export interface ContributionService {
@@ -101,6 +110,8 @@ export interface CreatorService {
   getCampaign(id: string, opts?: Opts): Promise<Campaign>;
   /** The draft a submitted campaign came from, for "edit and resubmit". */
   draftFor(campaignId: string, opts?: Opts): Promise<string | null>;
+  /** Posts an update to backers and followers (they're notified in Activity). */
+  postUpdate(campaignId: string, update: { title: string; body: string }): Promise<Campaign>;
 }
 
 /** Demo AI. Output types cannot carry a funding goal (see `DraftPatch`). */
@@ -141,6 +152,8 @@ export interface DevService {
   setLifecycle(patch: Partial<LifecycleSettings>): void;
   /** Moves a campaign (default: the newest one in review) to its next status now. */
   advanceCampaign(id?: string): Promise<{ id: string; status: CampaignStatus } | null>;
+  /** Sends the current reader a sample notification of any kind, about a relevant campaign. */
+  triggerNotification(kind: ActivityKind): Promise<void>;
 }
 
 export type Services = {
@@ -151,6 +164,7 @@ export type Services = {
   drafts: DraftService;
   creator: CreatorService;
   ai: AiService;
+  reports: ReportService;
   dev: DevService;
 };
 
