@@ -43,8 +43,18 @@ export function formatInteger(n: number): string {
   return group(n);
 }
 
+/**
+ * Estimates are rounded to two significant figures so they never look more precise than they
+ * are (252 → 250, 46,800 → 47K).
+ */
+export function roundEstimate(n: number): number {
+  if (n < 100) return Math.round(n);
+  const magnitude = 10 ** (Math.floor(Math.log10(n)) - 1);
+  return Math.round(n / magnitude) * magnitude;
+}
+
 export function formatReachRange(range: ReachRange): string {
-  return `${formatCompact(range.low)}–${formatCompact(range.high)}`;
+  return `${formatCompact(roundEstimate(range.low))}–${formatCompact(roundEstimate(range.high))}`;
 }
 
 export function formatPercent(fraction: number): string {

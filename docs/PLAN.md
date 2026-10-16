@@ -4,7 +4,7 @@ Source of truth for product rules: the hackathon PRD. This file records the appr
 
 ## Stack
 
-Expo SDK 57 · RN 0.86 (New Architecture) · Expo Router (custom JS tab bar via `expo-router/js-tabs`) · Reanimated 4 + Gesture Handler · Zustand · TanStack Query · react-hook-form + zod · expo-haptics · expo-image · @gorhom/bottom-sheet · FlashList · Phosphor icons · Inter + Source Serif 4.
+Expo SDK 57 · RN 0.86 (New Architecture) · Expo Router (custom JS tab bar via `expo-router/js-tabs`) · Reanimated 4 + Gesture Handler · Zustand · TanStack Query · react-hook-form + zod · expo-haptics · expo-image · custom floating bottom sheet (one implementation, both platforms) · FlashList · Phosphor icons · Inter + Source Serif 4.
 
 Everything must run in **Expo Go**. Not in Expo Go → worked around:
 

@@ -149,6 +149,14 @@ export type Page<T> = {
   total: number;
 };
 
+/** Server-curated Home sections. A campaign appears in at most one section. */
+export type HomeFeed = {
+  lead: CampaignSummary | null;
+  endingSoon: CampaignSummary[];
+  nowPromoting: CampaignSummary[];
+  justLaunched: CampaignSummary[];
+};
+
 export type User = {
   id: string;
   name: string;

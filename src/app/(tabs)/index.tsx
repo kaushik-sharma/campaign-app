@@ -1,80 +1,123 @@
 import { useQueryClient } from '@tanstack/react-query';
-import { router } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import Animated, { FadeIn, LinearTransition } from 'react-native-reanimated';
 
-import { CampaignFeedList } from '@/components/campaign/campaign-feed-list';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { DemoBadge, EstimatedReach } from '@/components/ui/estimate';
-import { ArrowRightIcon } from '@/components/ui/icons';
+import { CampaignRow } from '@/components/campaign/campaign-row';
+import { HowItWorksCard } from '@/components/campaign/how-it-works';
+import { LeadStoryCard, LeadStorySkeleton } from '@/components/campaign/lead-story-card';
+import { Rail, RailSkeleton } from '@/components/campaign/rail';
+import { DemoBadge } from '@/components/ui/estimate';
 import { Screen } from '@/components/ui/screen';
-import { Section } from '@/components/ui/section';
+import { SkeletonGroup } from '@/components/ui/skeleton';
+import { ErrorState } from '@/components/ui/states';
 import { Text } from '@/components/ui/text';
-import { campaignKeys } from '@/features/campaigns/queries';
-import { layout, space } from '@/theme';
+import { campaignKeys, useHomeFeed } from '@/features/campaigns/queries';
+import { usePreferences } from '@/stores/preferences';
+import { duration, layout, space, spring } from '@/theme';
 
-/** Phase 1 home: the promise, the next actions and a live feed from the mock service. */
+const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+function today(): string {
+  const d = new Date();
+  return `${WEEKDAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}`;
+}
+
+const layoutTransition = LinearTransition.springify().damping(spring.gentle.damping).stiffness(spring.gentle.stiffness);
+
+/**
+ * Home is a curated front page, not a catalogue: one lead story, then a few short sections.
+ * No pitch, no duplicate CTAs. First-time visitors see a one-off "How it works" card.
+ */
 export default function HomeScreen() {
   const queryClient = useQueryClient();
+  const home = useHomeFeed();
+  const introDismissed = usePreferences((s) => s.introDismissed);
+  const dismissIntro = usePreferences((s) => s.dismissIntro);
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await queryClient.refetchQueries({ queryKey: campaignKeys.all });
+    await queryClient.refetchQueries({ queryKey: campaignKeys.home() });
     setRefreshing(false);
   };
 
   return (
-    <Screen title="Campaigns" eyebrow="Community-funded reach" onRefresh={onRefresh} refreshing={refreshing}>
-      <View style={styles.hero}>
-        <Card padded={false} elevation="e2">
-          <View style={styles.heroBody}>
-            <Text variant="title1">Help important messages travel further.</Text>
-            <Text variant="body" color="textMuted">
-              Creators publish a message. We review it. Backers pool contributions that pay for ads,
-              so the message reaches people beyond the creator’s own network.
-            </Text>
-            <View style={styles.reach}>
-              <Text variant="caption" color="textMuted">
-                A $10 contribution reaches
-              </Text>
-              <EstimatedReach amountCents={1_000} variant="bodyStrong" />
-            </View>
-            <View style={styles.actions}>
-              <Button label="Explore campaigns" fullWidth onPress={() => router.navigate('/explore')} />
-              <Button
-                label="Start a campaign"
-                variant="secondary"
-                fullWidth
-                icon={ArrowRightIcon}
-                iconPosition="trailing"
-                onPress={() => router.navigate('/create')}
-              />
-            </View>
-          </View>
-        </Card>
-        <Text variant="footnote" color="textMuted" style={styles.note}>
-          Contributions pay for advertising that spreads the message. They aren’t donations to the
-          cause or the creator.
+    <Screen title="Campaigns" brand onRefresh={onRefresh} refreshing={refreshing}>
+      <View style={styles.dateline}>
+        <Text variant="overline" color="textMuted">
+          {today()}
         </Text>
+        <DemoBadge />
       </View>
 
-      <Section title="Campaign feed" description="Reviewed campaigns from creators and organizations.">
-        <View style={styles.demo}>
-          <DemoBadge />
-        </View>
-        <CampaignFeedList params={{ sort: 'trending' }} />
-      </Section>
+      {home.isPending ? (
+        <SkeletonGroup label="Loading campaigns">
+          <View style={styles.lead}>
+            <LeadStorySkeleton />
+          </View>
+          <RailSkeleton />
+        </SkeletonGroup>
+      ) : home.isError ? (
+        <ErrorState error={home.error} onRetry={() => void home.refetch()} retrying={home.isRefetching} />
+      ) : (
+        <Animated.View entering={FadeIn.duration(duration.slow)}>
+          {home.data.lead && (
+            <View style={styles.lead}>
+              <LeadStoryCard campaign={home.data.lead} />
+            </View>
+          )}
+
+          {!introDismissed && (
+            <View style={styles.intro}>
+              <HowItWorksCard onDismiss={dismissIntro} />
+            </View>
+          )}
+
+          <Animated.View layout={layoutTransition}>
+            <Rail
+              title="Ending soon"
+              description="Funding closes in the next few days."
+              items={home.data.endingSoon}
+              variant="deadline"
+            />
+            <Rail
+              title="Now promoting"
+              description="Funded by backers. Ads are reaching new people."
+              items={home.data.nowPromoting}
+              variant="promoting"
+            />
+            {home.data.justLaunched.length > 0 && (
+              <View style={styles.section}>
+                <Text variant="title2" accessibilityRole="header">
+                  Just launched
+                </Text>
+                <View style={styles.list}>
+                  {home.data.justLaunched.map((c, i) => (
+                    <CampaignRow key={c.id} campaign={c} index={i} trailing="percent" />
+                  ))}
+                </View>
+              </View>
+            )}
+          </Animated.View>
+        </Animated.View>
+      )}
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  hero: { paddingHorizontal: layout.gutter, marginBottom: layout.sectionGap, gap: space.md },
-  heroBody: { padding: space.xl, gap: space.lg },
-  reach: { gap: space.xs },
-  actions: { gap: space.sm, marginTop: space.xs },
-  note: { paddingHorizontal: space.xs },
-  demo: { marginBottom: space.md },
+  dateline: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: layout.gutter,
+    paddingTop: space.sm,
+    paddingBottom: space.lg,
+  },
+  lead: { paddingHorizontal: layout.gutter, marginBottom: layout.sectionGap },
+  intro: { paddingHorizontal: layout.gutter, marginBottom: layout.sectionGap },
+  section: { paddingHorizontal: layout.gutter, gap: space.md, marginBottom: layout.sectionGap },
+  list: { gap: space.md },
 });

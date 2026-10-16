@@ -25,6 +25,11 @@ type Props = {
   children: ReactNode;
   /** Shows a back button in the compact header. */
   back?: boolean;
+  /**
+   * Brand header for top-level screens whose content leads with its own headline (Home):
+   * the wordmark sits in the header permanently and there is no large title.
+   */
+  brand?: boolean;
   /** Right side of the compact header. */
   headerRight?: ReactNode;
   onRefresh?: () => void;
@@ -41,6 +46,7 @@ export function Screen({
   eyebrow,
   children,
   back,
+  brand = false,
   headerRight,
   onRefresh,
   refreshing = false,
@@ -54,8 +60,9 @@ export function Screen({
     scrollY.set(e.contentOffset.y);
   });
 
+  const bgRange = brand ? [0, 16] : [LARGE_TITLE - 24, LARGE_TITLE];
   const headerBgStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(scrollY.get(), [LARGE_TITLE - 24, LARGE_TITLE], [0, 1], 'clamp'),
+    opacity: interpolate(scrollY.get(), bgRange, [0, 1], 'clamp'),
   }));
   const compactTitleStyle = useAnimatedStyle(() => ({
     opacity: interpolate(scrollY.get(), [LARGE_TITLE - 12, LARGE_TITLE + 8], [0, 1], 'clamp'),
@@ -90,16 +97,18 @@ export function Screen({
             />
           ) : undefined
         }>
-        <Animated.View style={[styles.largeTitle, largeTitleStyle]}>
-          {eyebrow && (
-            <Text variant="overline" color="textMuted">
-              {eyebrow}
+        {!brand && (
+          <Animated.View style={[styles.largeTitle, largeTitleStyle]}>
+            {eyebrow && (
+              <Text variant="overline" color="textMuted">
+                {eyebrow}
+              </Text>
+            )}
+            <Text variant="display" accessibilityRole="header">
+              {title}
             </Text>
-          )}
-          <Text variant="display" accessibilityRole="header">
-            {title}
-          </Text>
-        </Animated.View>
+          </Animated.View>
+        )}
         {children}
       </Animated.ScrollView>
 
@@ -113,16 +122,26 @@ export function Screen({
             headerBgStyle,
           ]}
         />
-        <View style={styles.headerSide}>
-          {back && (
-            <IconButton icon={ArrowLeftIcon} accessibilityLabel="Back" onPress={() => router.back()} />
-          )}
-        </View>
-        <Animated.View style={[styles.headerTitle, compactTitleStyle]} pointerEvents="none">
-          <Text variant="title3" numberOfLines={1} importantForAccessibility="no">
-            {title}
-          </Text>
-        </Animated.View>
+        {brand ? (
+          <View style={styles.brand}>
+            <Text variant="title3" accessibilityRole="header">
+              {title}
+            </Text>
+          </View>
+        ) : (
+          <>
+            <View style={styles.headerSide}>
+              {back && (
+                <IconButton icon={ArrowLeftIcon} accessibilityLabel="Back" onPress={() => router.back()} />
+              )}
+            </View>
+            <Animated.View style={[styles.headerTitle, compactTitleStyle]} pointerEvents="none">
+              <Text variant="title3" numberOfLines={1} importantForAccessibility="no">
+                {title}
+              </Text>
+            </Animated.View>
+          </>
+        )}
         <View style={[styles.headerSide, styles.headerRight]}>{headerRight}</View>
       </View>
     </View>
@@ -150,4 +169,5 @@ const styles = StyleSheet.create({
   headerSide: { width: 88, flexDirection: 'row', alignItems: 'center' },
   headerRight: { justifyContent: 'flex-end' },
   headerTitle: { flex: 1, alignItems: 'center' },
+  brand: { flex: 1, paddingHorizontal: layout.gutter - space.sm },
 });

@@ -10,6 +10,7 @@ export const campaignKeys = {
   lists: () => [...campaignKeys.all, 'list'] as const,
   list: (params: ListParams) => [...campaignKeys.lists(), params] as const,
   featured: () => [...campaignKeys.all, 'featured'] as const,
+  home: () => [...campaignKeys.all, 'home'] as const,
   detail: (id: string) => [...campaignKeys.all, 'detail', id] as const,
 };
 
@@ -34,5 +35,12 @@ export function useCampaign(id: string) {
   return useQuery({
     queryKey: campaignKeys.detail(id),
     queryFn: ({ signal }) => services.campaigns.get(id, { signal }),
+  });
+}
+
+export function useHomeFeed() {
+  return useQuery({
+    queryKey: campaignKeys.home(),
+    queryFn: ({ signal }) => services.campaigns.home({ signal }),
   });
 }

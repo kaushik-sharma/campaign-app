@@ -8,10 +8,12 @@ import type {
   StatusEvent,
 } from '@/domain/types';
 
+import { campaignCovers } from './images';
+
 /**
  * Seed campaigns: demo data. Figures are fixed so the same campaign shows the same numbers on
  * every screen. Dates are relative to app launch so "days left" stays believable.
- * Stories, sources and imagery are filled in by Phase 2.
+ * Stories and sources are filled in by Phase 2.
  */
 
 const DAY = 86_400_000;
@@ -56,7 +58,7 @@ const seeds: Seed[] = [
     goal: 12_000,
     raised: 8_640,
     backers: 214,
-    openedDaysAgo: 12,
+    openedDaysAgo: 26,
     fundingWindowDays: 30,
     durationDays: 21,
     featured: true,
@@ -134,8 +136,8 @@ const seeds: Seed[] = [
     },
     status: 'funding',
     goal: 6_000,
-    raised: 2_340,
-    backers: 87,
+    raised: 4_620,
+    backers: 171,
     openedDaysAgo: 6,
     fundingWindowDays: 30,
     durationDays: 14,
@@ -455,7 +457,7 @@ const seeds: Seed[] = [
     goal: 9_000,
     raised: 6_210,
     backers: 301,
-    openedDaysAgo: 15,
+    openedDaysAgo: 24,
     fundingWindowDays: 30,
     durationDays: 21,
     featured: true,
@@ -716,7 +718,7 @@ function toCampaign(seed: Seed): Campaign {
     summary: seed.summary,
     category: seed.category,
     creator: seed.creator,
-    cover: null,
+    cover: campaignCovers[seed.id] ?? null,
     status: seed.status,
     goalCents: seed.goal * 100,
     raisedCents: seed.raised * 100,

@@ -10,21 +10,21 @@ import { categoryLabel, creatorTypeLabels } from '@/domain/categories';
 import { fundingProgress } from '@/domain/money';
 import type { CampaignSummary } from '@/domain/types';
 import { formatMoney, formatPercent } from '@/lib/format';
-import { motion, radius, space, spring, useTheme } from '@/theme';
+import { motion, radius, space, spring } from '@/theme';
 
-import { categoryIcons } from './category-icon';
+import { CoverImage } from './cover-image';
 
 type Props = {
   campaign: CampaignSummary;
   /** Position in the list, used to stagger the entrance of the first few rows. */
   index?: number;
   onPress?: () => void;
+  /** What sits opposite the amount: the lifecycle status, or the percent funded when the status is implied. */
+  trailing?: 'status' | 'percent';
 };
 
 /** Compact campaign card: category tint tile, title, creator, funding progress. */
-export function CampaignRow({ campaign, index = 0, onPress }: Props) {
-  const { categoryTint, colors } = useTheme();
-  const CategoryIcon = categoryIcons[campaign.category];
+export function CampaignRow({ campaign, index = 0, onPress, trailing = 'status' }: Props) {
   const progress = fundingProgress(campaign.raisedCents, campaign.goalCents);
   const delay = Math.min(index, motion.staggerCap) * motion.staggerMs;
 
@@ -33,9 +33,7 @@ export function CampaignRow({ campaign, index = 0, onPress }: Props) {
       entering={FadeInDown.delay(delay).springify().damping(spring.gentle.damping).stiffness(spring.gentle.stiffness)}>
       <Card onPress={onPress} accessibilityLabel={`${campaign.title}, by ${campaign.creator.name}`}>
         <View style={styles.top}>
-          <View style={[styles.tile, { backgroundColor: categoryTint(campaign.category) }]}>
-            <CategoryIcon size={26} color={colors.textMuted} />
-          </View>
+          <CoverImage image={campaign.cover} category={campaign.category} style={styles.tile} />
           <View style={styles.text}>
             <Text variant="overline" color="textMuted" numberOfLines={1}>
               {categoryLabel(campaign.category)}
@@ -61,7 +59,13 @@ export function CampaignRow({ campaign, index = 0, onPress }: Props) {
                 {` of ${formatMoney(campaign.goalCents)}`}
               </Text>
             </Text>
-            <StatusPill status={campaign.status} />
+            {trailing === 'status' ? (
+              <StatusPill status={campaign.status} />
+            ) : (
+              <Text variant="subhead" color="textMuted" tabular>
+                {formatPercent(progress)} funded
+              </Text>
+            )}
           </View>
         </View>
       </Card>
@@ -90,14 +94,7 @@ export function CampaignRowSkeleton() {
 
 const styles = StyleSheet.create({
   top: { flexDirection: 'row', gap: space.md },
-  tile: {
-    width: 64,
-    height: 64,
-    borderRadius: radius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: space.xs,
-  },
+  tile: { width: 64, height: 64, borderRadius: radius.md },
   text: { flex: 1, gap: space.xs },
   skeletonText: { gap: space.sm, paddingTop: 2 },
   progress: { gap: space.sm, marginTop: space.lg },

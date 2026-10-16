@@ -6,6 +6,7 @@ import type {
   CampaignListParams,
   CampaignSort,
   CampaignSummary,
+  HomeFeed,
   ProgressBand,
 } from '@/domain/types';
 
@@ -15,6 +16,7 @@ import { db } from './db';
 import { simulateRequest } from './network';
 
 const ENDING_SOON_DAYS = 7;
+const JUST_LAUNCHED_DAYS = 14;
 
 export function toSummary(c: Campaign): CampaignSummary {
   return {
@@ -137,6 +139,41 @@ export const mockCampaignService: CampaignService = {
         .filter((c) => c.featured && isPublic(c.status))
         .sort((a, b) => b.trendScore - a.trendScore)
         .map(toSummary);
+    }, opts);
+  },
+
+  home(opts) {
+    return simulateRequest(async (): Promise<HomeFeed> => {
+      await db.ready();
+      const now = Date.now();
+      const all = [...db.tables.campaigns.values()];
+      const used = new Set<string>();
+      const take = (list: Campaign[], max: number) => {
+        const picked = list.filter((c) => !used.has(c.id)).slice(0, max);
+        picked.forEach((c) => used.add(c.id));
+        return picked.map(toSummary);
+      };
+      const funding = all.filter((c) => c.status === 'funding');
+
+      const [lead = null] = take(
+        funding.filter((c) => c.featured).sort((a, b) => b.trendScore - a.trendScore),
+        1,
+      );
+      const endingSoon = take(
+        funding.filter((c) => isEndingSoon(c, now)).sort((a, b) => time(a.fundingEndsAt) - time(b.fundingEndsAt)),
+        5,
+      );
+      const nowPromoting = take(
+        all.filter((c) => c.status === 'promoting').sort((a, b) => b.trendScore - a.trendScore),
+        5,
+      );
+      const justLaunched = take(
+        funding
+          .filter((c) => now - time(c.publishedAt) <= JUST_LAUNCHED_DAYS * 86_400_000)
+          .sort((a, b) => time(b.publishedAt) - time(a.publishedAt)),
+        3,
+      );
+      return { lead, endingSoon, nowPromoting, justLaunched };
     }, opts);
   },
 

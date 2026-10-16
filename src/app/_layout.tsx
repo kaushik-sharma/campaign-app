@@ -10,7 +10,6 @@ import {
   SourceSerif4_400Regular_Italic,
   SourceSerif4_600SemiBold,
 } from '@expo-google-fonts/source-serif-4';
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider as NavigationThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -48,14 +47,12 @@ function RootNavigator() {
           border: colors.border,
         },
       }}>
-      <BottomSheetModalProvider>
-        <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen name="auth" options={{ presentation: 'modal' }} />
-        </Stack>
-        <ToastHost />
-      </BottomSheetModalProvider>
+      <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
+        <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="auth" options={{ presentation: 'modal' }} />
+      </Stack>
+      <ToastHost />
     </NavigationThemeProvider>
   );
 }

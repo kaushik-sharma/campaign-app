@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { demo } from '@/config/demo';
 import { estimateReach, peoplePerDollar } from '@/domain/money';
 import type { Cents } from '@/domain/types';
-import { formatCompact, formatMoney } from '@/lib/format';
+import { formatMoney, formatReachRange } from '@/lib/format';
 import { radius, space, useTheme, type TypeVariant } from '@/theme';
 
 import { Badge } from './badge';
@@ -31,7 +31,7 @@ export function ReachAssumptionsSheet({ open, onClose }: { open: boolean; onClos
         <Text variant="body" color="textMuted">
           {`Each $1 of ad budget reaches about ${Math.round(peoplePerDollar())} people with our demo assumptions. A $100 contribution puts $${(
             (100 * (1 - demo.fees.platformPct))
-          ).toFixed(0)} into ads, reaching roughly ${formatCompact(example.low)}–${formatCompact(example.high)} people.`}
+          ).toFixed(0)} into ads, reaching roughly ${formatReachRange(example)} people.`}
         </Text>
         <View style={[styles.table, { borderColor: colors.border }]}>
           {rows.map(([label, value], i) => (
@@ -74,7 +74,8 @@ export function EstimatedReach({ amountCents, variant = 'subhead', suffix = 'peo
   const { colors } = useTheme();
   const [open, setOpen] = useState(false);
   const range = estimateReach(amountCents);
-  const label = `≈ ${formatCompact(range.low)}–${formatCompact(range.high)} ${suffix}`;
+  const rangeText = formatReachRange(range);
+  const label = `≈ ${rangeText} ${suffix}`;
 
   return (
     <>
@@ -82,13 +83,13 @@ export function EstimatedReach({ amountCents, variant = 'subhead', suffix = 'peo
         onPress={() => setOpen(true)}
         haptic="selection"
         scaleTo={0.97}
-        accessibilityLabel={`Estimated reach: ${formatCompact(range.low)} to ${formatCompact(range.high)} ${suffix}. For ${formatMoney(amountCents)}.`}
+        accessibilityLabel={`Estimated reach: about ${rangeText.replace('–', ' to ')} ${suffix}, for ${formatMoney(amountCents)}.`}
         accessibilityHint="Explains how this estimate is calculated"
         style={styles.inline}>
         <Text variant={variant} tabular>
           {label}
         </Text>
-        <View style={[styles.estTag, { backgroundColor: colors.surfaceSunken }]}>
+        <View style={[styles.estTag, { borderColor: colors.borderStrong }]}>
           <Text variant="caption" color="textMuted" maxFontSizeMultiplier={1.2}>
             Est.
           </Text>
@@ -114,6 +115,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: radius.xs,
+    borderWidth: StyleSheet.hairlineWidth,
   },
   sheetBody: { gap: space.lg },
   table: { borderWidth: StyleSheet.hairlineWidth, borderRadius: radius.md, overflow: 'hidden' },

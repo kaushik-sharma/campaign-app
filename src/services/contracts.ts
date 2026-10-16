@@ -10,6 +10,7 @@ import type {
   Campaign,
   CampaignListParams,
   CampaignSummary,
+  HomeFeed,
   Page,
   Session,
   User,
@@ -32,6 +33,8 @@ export interface CampaignService {
   /** Public discovery: only campaigns that have passed review. Cursor-paginated. */
   list(params: CampaignListParams, opts?: Opts): Promise<Page<CampaignSummary>>;
   featured(opts?: Opts): Promise<CampaignSummary[]>;
+  /** Curated Home sections, de-duplicated server-side. */
+  home(opts?: Opts): Promise<HomeFeed>;
   get(id: string, opts?: Opts): Promise<Campaign>;
 }
 

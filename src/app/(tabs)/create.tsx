@@ -1,8 +1,12 @@
+import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+
+import { HowItWorksSheet } from '@/components/campaign/how-it-works';
 
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { MicrophoneIcon, PencilSimpleIcon, type IconComponent } from '@/components/ui/icons';
+import { IconButton } from '@/components/ui/icon-button';
+import { InfoIcon, MicrophoneIcon, PencilSimpleIcon, type IconComponent } from '@/components/ui/icons';
 import { Screen } from '@/components/ui/screen';
 import { Section } from '@/components/ui/section';
 import { Text } from '@/components/ui/text';
@@ -36,8 +40,14 @@ function StartOption({ icon: Icon, title, body }: { icon: IconComponent; title: 
 /** Phase 1 create hub: explains the five steps. The guided flow arrives in Phase 4. */
 export default function CreateScreen() {
   const { colors } = useTheme();
+  const [aboutOpen, setAboutOpen] = useState(false);
   return (
-    <Screen title="Create">
+    <Screen
+      title="Create"
+      headerRight={
+        <IconButton icon={InfoIcon} accessibilityLabel="How Campaigns works" onPress={() => setAboutOpen(true)} />
+      }>
+      <HowItWorksSheet open={aboutOpen} onClose={() => setAboutOpen(false)} />
       <Section>
         <View style={styles.intro}>
           <Badge label="Creation flow arrives in a later build" tone="info" />

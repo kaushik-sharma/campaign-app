@@ -111,6 +111,7 @@ export const typography = {
     textTransform: 'uppercase',
   },
   amount: { fontFamily: fonts.bold, fontSize: 28, lineHeight: 32, letterSpacing: -0.4 },
+  hero: { fontFamily: fonts.serifSemibold, fontSize: 34, lineHeight: 40, letterSpacing: -0.6 },
   storyTitle: { fontFamily: fonts.serifSemibold, fontSize: 28, lineHeight: 34, letterSpacing: -0.3 },
   storyHeading: { fontFamily: fonts.serifSemibold, fontSize: 21, lineHeight: 28 },
   storyBody: { fontFamily: fonts.serif, fontSize: 18, lineHeight: 28 },
