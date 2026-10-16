@@ -10,7 +10,9 @@ export default function TabLayout() {
       tabBar={(props) => <TabBar {...props} />}
       screenOptions={{
         headerShown: false,
-        animation: 'shift',
+        // Tab switches are instant. The built-in scene animation (native-driver fade + detach) could
+        // leave a tab blank when switching mid-transition.
+        animation: 'none',
         sceneStyle: { backgroundColor: colors.bg },
       }}>
       <Tabs.Screen name="index" options={{ title: 'Home' }} />
