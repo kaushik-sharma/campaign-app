@@ -7,8 +7,8 @@
     "start": "expo start",
     "ios": "expo run:ios",
     "android": "expo run:android",
-    "ios:go": "expo start --ios",
-    "android:go": "expo start --android",
+    "ios:go": "expo start --go --ios",
+    "android:go": "expo start --go --android",
     "web": "expo start --web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit"
