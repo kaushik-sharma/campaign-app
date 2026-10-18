@@ -6,18 +6,18 @@ import { formatMoney } from '@/lib/format';
 
 import type { ReportService } from '../contracts';
 import { ServiceError } from '../errors';
-import { mockAuthService } from './auth';
 import { db } from './db';
 import { addEvent, GUEST } from './events';
 import { advanceDue } from './lifecycle';
 import { simulateRequest } from './network';
+import { currentUser } from './session';
 
 export const mockReportService: ReportService = {
   get(campaignId, opts) {
     return simulateRequest(async () => {
       await db.ready();
       advanceDue();
-      const user = (await mockAuthService.getSession())?.user ?? null;
+      const user = await currentUser();
       const c = db.tables.campaigns.get(campaignId);
       const allowed = c && (isPublic(c.status) || c.status === 'refund-pending' || db.ownerOf(c.id) === user?.id);
       if (!c || !allowed) throw new ServiceError('not-found', 'Report not found');
@@ -75,7 +75,7 @@ function contextFor(kind: ActivityKind, userId: string | null): Campaign | null 
 
 export async function triggerNotification(kind: ActivityKind): Promise<void> {
   await db.ready();
-  const userId = (await mockAuthService.getSession())?.user.id ?? null;
+  const userId = (await currentUser())?.id ?? null;
   const c = contextFor(kind, userId);
   const event = sample(kind, c);
   addEvent(userId ?? GUEST, { ...event, campaignId: c?.id ?? '', group: activityGroupOf({ ...event, campaignId: '' } as ActivityEvent) });

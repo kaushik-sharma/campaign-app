@@ -8,11 +8,11 @@ import { formatMoney, formatPercent } from '@/lib/format';
 
 import type { ActivityService, ContributionService } from '../contracts';
 import { ServiceError } from '../errors';
-import { mockAuthService } from './auth';
 import { db } from './db';
 import { addEvent, GUEST, notifyStakeholders, randomId } from './events';
 import { advanceDue } from './lifecycle';
 import { simulateRequest } from './network';
+import { currentUser } from './session';
 
 
 const { minContributionCents: MIN, maxContributionCents: MAX } = demo.funding;
@@ -27,10 +27,6 @@ const checkoutSchema = z.object({
   simulate: z.enum(['approve', 'pending', 'decline', 'cancel']),
 });
 
-
-async function currentUser(): Promise<User | null> {
-  return (await mockAuthService.getSession())?.user ?? null;
-}
 
 const ownerOf = (c: Contribution) => c.userId ?? GUEST;
 

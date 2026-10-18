@@ -1,9 +1,7 @@
 /**
  * Typed service contracts. Screens reach these only through `src/features/*` hooks.
- * The mock (`./mock`) and the future Supabase implementation (`./supabase`) both satisfy them,
- * so swapping backends never touches UI code.
- *
- * Supabase replaces these one service at a time behind `src/services/index.ts`.
+ * Each backend (`./mock`, `./firebase`) satisfies them, so swapping one never touches UI code.
+ * Backends are chosen per service in `src/services/index.ts`.
  */
 import type { CampaignStatus } from '@/domain/lifecycle';
 import type {
@@ -41,6 +39,8 @@ export interface AuthService {
   getSession(): Promise<Session | null>;
   signIn(input: { email: string; password: string }): Promise<Session>;
   signUp(input: { name: string; email: string; password: string }): Promise<Session>;
+  /** Emails a password reset link. Succeeds whether or not an account exists, so it can't be used to probe for accounts. */
+  sendPasswordReset(input: { email: string }): Promise<void>;
   signOut(): Promise<void>;
   onAuthStateChange(listener: AuthChangeListener): () => void;
 }

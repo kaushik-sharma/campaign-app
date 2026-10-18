@@ -10,12 +10,13 @@ type AuthState = {
   session: Session | null | undefined;
   signIn: typeof services.auth.signIn;
   signUp: typeof services.auth.signUp;
+  sendPasswordReset: typeof services.auth.sendPasswordReset;
   signOut: typeof services.auth.signOut;
 };
 
 const AuthContext = createContext<AuthState | null>(null);
 
-/** Talks only to `services.auth`, so swapping mock auth for Supabase touches nothing here. */
+/** Talks only to `services.auth`, so the auth backend (Firebase or the on-device mock) doesn't matter here. */
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null | undefined>(undefined);
 
@@ -40,6 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         session,
         signIn: services.auth.signIn,
         signUp: services.auth.signUp,
+        sendPasswordReset: services.auth.sendPasswordReset,
         signOut: services.auth.signOut,
       }}>
       {children}

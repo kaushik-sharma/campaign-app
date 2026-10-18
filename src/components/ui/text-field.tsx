@@ -1,4 +1,4 @@
-import { useEffect, type Ref } from 'react';
+import { useEffect, useState, type Ref } from 'react';
 import { StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
 import Animated, {
   FadeInDown,
@@ -13,6 +13,8 @@ import Animated, {
 import { haptics } from '@/lib/haptics';
 import { duration, fonts, radius, space, typography, useTheme } from '@/theme';
 
+import { IconButton } from './icon-button';
+import { EyeIcon, EyeSlashIcon } from './icons';
 import { Text } from './text';
 
 type Props = Omit<TextInputProps, 'style'> & {
@@ -28,7 +30,7 @@ type Props = Omit<TextInputProps, 'style'> & {
 
 /**
  * Labelled text input. Focus ring and error colour animate; a new error shakes the field
- * once and fires a warning haptic.
+ * once and fires a warning haptic. Password fields (`secureTextEntry`) get a show/hide toggle.
  */
 export function TextField({
   label,
@@ -41,9 +43,11 @@ export function TextField({
   onFocus,
   onBlur,
   ref,
+  secureTextEntry,
   ...rest
 }: Props) {
   const { colors } = useTheme();
+  const [revealed, setRevealed] = useState(false);
   const focus = useSharedValue(0);
   const shake = useSharedValue(0);
 
@@ -84,7 +88,8 @@ export function TextField({
           </Text>
         )}
       </View>
-      <Animated.View style={[styles.field, { backgroundColor: colors.surface }, multiline && styles.multiline, fieldStyle]}>
+      <Animated.View
+        style={[styles.field, { backgroundColor: colors.surface }, multiline && styles.multiline, secureTextEntry && styles.withToggle, fieldStyle]}>
         <TextInput
           ref={ref}
           value={value}
@@ -103,10 +108,19 @@ export function TextField({
             focus.set(withTiming(0, { duration: duration.fast }));
             onBlur?.(e);
           }}
-          style={[styles.input, { color: colors.text }, multiline && styles.inputMultiline]}
+          style={[styles.input, { color: colors.text }, multiline && styles.inputMultiline, secureTextEntry && styles.flex]}
           textAlignVertical={multiline ? 'top' : 'center'}
+          secureTextEntry={secureTextEntry && !revealed}
           {...rest}
         />
+        {secureTextEntry && (
+          <IconButton
+            icon={revealed ? EyeSlashIcon : EyeIcon}
+            accessibilityLabel={revealed ? 'Hide password' : 'Show password'}
+            onPress={() => setRevealed((r) => !r)}
+            style={styles.toggle}
+          />
+        )}
       </Animated.View>
       {error ? (
         <Animated.View key="error" entering={FadeInDown.duration(duration.fast)} exiting={FadeOut.duration(duration.instant)}>
@@ -133,6 +147,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   multiline: { minHeight: 112 },
+  withToggle: { flexDirection: 'row', alignItems: 'center' },
+  flex: { flex: 1 },
+  toggle: { marginRight: space.xs },
   input: {
     ...typography.body,
     fontFamily: fonts.regular,

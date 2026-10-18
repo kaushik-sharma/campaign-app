@@ -1,18 +1,16 @@
-import { z } from 'zod';
-
 import { demo } from '@/config/demo';
 import type { Session, User } from '@/domain/types';
 import { readJSON, writeJSON } from '@/lib/storage';
 
 import type { AuthChangeListener, AuthService } from '../contracts';
 import { ServiceError } from '../errors';
-import { db } from './db';
-import { addEvent } from './events';
+import { credentials, emailInput, signUpInput, validate } from '../validation';
 import { simulateRequest } from './network';
+import { TEST_ACCOUNT_ID } from './session';
 
 /**
- * Mock auth. Demo only: passwords are stored locally in plain text and never leave the device.
- * Replaced by Supabase email + password in the final phase, behind the same AuthService contract.
+ * On-device auth, used in Expo Go (which can't load Firebase) or with EXPO_PUBLIC_AUTH=mock.
+ * Passwords are stored locally in plain text and never leave the device.
  */
 const USERS_KEY = 'mockauth:users:v1';
 const SESSION_KEY = 'mockauth:session:v1';
@@ -21,20 +19,12 @@ const SESSION_DAYS = 30;
 type StoredUser = User & { password: string };
 
 const demoUser: StoredUser = {
-  id: 'u-demo',
+  id: TEST_ACCOUNT_ID,
   name: 'Alex Rivera',
   email: demo.demoAccount.email,
   password: demo.demoAccount.password,
   createdAt: new Date(Date.now() - 140 * 86_400_000).toISOString(),
 };
-
-const credentials = z.object({
-  email: z.email('Enter a valid email address').transform((s) => s.trim().toLowerCase()),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
-});
-const signUpInput = credentials.extend({
-  name: z.string().trim().min(2, 'Enter your name').max(60),
-});
 
 const listeners = new Set<AuthChangeListener>();
 let current: Session | null = null;
@@ -58,32 +48,6 @@ async function setSession(session: Session | null) {
   listeners.forEach((l) => l(session));
 }
 
-function validate<T>(schema: z.ZodType<T>, input: unknown): T {
-  const parsed = schema.safeParse(input);
-  if (!parsed.success) {
-    const fieldErrors: Record<string, string> = {};
-    for (const issue of parsed.error.issues) fieldErrors[String(issue.path[0])] ??= issue.message;
-    throw new ServiceError('validation', 'Check the highlighted fields', fieldErrors);
-  }
-  return parsed.data;
-}
-
-/** Account activity: a welcome on sign-up, and a note for each new sign-in. */
-async function recordAccountEvent(userId: string, kind: 'welcome' | 'sign-in') {
-  await db.ready();
-  addEvent(userId, {
-    campaignId: '',
-    group: 'account',
-    link: { screen: 'profile' },
-    kind,
-    title: kind === 'welcome' ? 'Welcome to Campaigns' : 'New sign-in',
-    body:
-      kind === 'welcome'
-        ? 'Follow campaigns to get their milestones here, and create your own from the Create tab.'
-        : 'Your account was signed in on this device. If this wasn’t you, change your password.',
-  });
-}
-
 export const mockAuthService: AuthService = {
   async getSession() {
     if (current) return current;
@@ -101,7 +65,6 @@ export const mockAuthService: AuthService = {
       }
       const session = createSession(user);
       await setSession(session);
-      await recordAccountEvent(user.id, 'sign-in');
       return session;
     });
   },
@@ -125,8 +88,14 @@ export const mockAuthService: AuthService = {
       await writeJSON(USERS_KEY, [...users, user]);
       const session = createSession(user);
       await setSession(session);
-      await recordAccountEvent(user.id, 'welcome');
       return session;
+    });
+  },
+
+  sendPasswordReset(input) {
+    // Nothing to send on the device; accept any well-formed address, as a real backend would.
+    return simulateRequest(async () => {
+      validate(emailInput, input);
     });
   },
 

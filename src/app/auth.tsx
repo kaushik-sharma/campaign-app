@@ -10,7 +10,7 @@ import { z } from 'zod';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { IconButton } from '@/components/ui/icon-button';
-import { FlaskIcon, WarningCircleIcon, XIcon } from '@/components/ui/icons';
+import { UserCircleIcon, WarningCircleIcon, XIcon } from '@/components/ui/icons';
 import { SegmentedControl } from '@/components/ui/segmented-control';
 import { Text } from '@/components/ui/text';
 import { TextField } from '@/components/ui/text-field';
@@ -36,7 +36,7 @@ type FormValues = z.infer<typeof schema>;
 export default function AuthScreen() {
   const { colors } = useTheme();
   const insets = useSafeAreaInsets();
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, sendPasswordReset } = useAuth();
   const { reason } = useLocalSearchParams<{ reason?: AuthReason }>();
   const [mode, setMode] = useState<Mode>('sign-in');
 
@@ -44,7 +44,9 @@ export default function AuthScreen() {
   useEffect(() => clearPendingAuthAction, []);
   const [formError, setFormError] = useState<string | null>(null);
 
-  const { control, handleSubmit, setError, setValue, clearErrors, formState } = useForm<FormValues>({
+  const [sendingReset, setSendingReset] = useState(false);
+
+  const { control, handleSubmit, setError, setValue, getValues, clearErrors, formState } = useForm<FormValues>({
     resolver: zodResolver(mode === 'sign-up' ? signUpSchema : schema),
     defaultValues: { name: '', email: '', password: '' },
   });
@@ -69,6 +71,24 @@ export default function AuthScreen() {
       setFormError(isServiceError(e) && e.code === 'unauthorized' ? e.message : describeError(e).message);
     }
   });
+
+  const onForgotPassword = async () => {
+    setFormError(null);
+    const email = getValues('email').trim();
+    if (!z.email().safeParse(email).success) {
+      setError('email', { message: 'Enter your email address to get a reset link' });
+      return;
+    }
+    setSendingReset(true);
+    try {
+      await sendPasswordReset({ email });
+      toast('If there’s an account for that email, a reset link is on its way.', 'success');
+    } catch (e) {
+      setFormError(describeError(e).message);
+    } finally {
+      setSendingReset(false);
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -184,22 +204,36 @@ export default function AuthScreen() {
             loading={formState.isSubmitting}
             onPress={() => void onSubmit()}
           />
+          {mode === 'sign-in' && (
+            <Button
+              label="Forgot password?"
+              variant="ghost"
+              size="sm"
+              loading={sendingReset}
+              onPress={() => void onForgotPassword()}
+            />
+          )}
         </Animated.View>
 
         {mode === 'sign-in' && (
-          <Card tone="sunken" style={styles.demo}>
-            <View style={styles.demoHeader}>
-              <FlaskIcon size={16} color={colors.textMuted} />
-              <Text variant="subhead">Test account</Text>
+          <Card tone="sunken" style={styles.sample}>
+            <View style={styles.sampleHeader}>
+              <UserCircleIcon size={18} color={colors.textMuted} />
+              <Text variant="subhead">Sample creator account</Text>
             </View>
             <Text variant="footnote" color="textMuted">
-              {`${demo.demoAccount.email} · ${demo.demoAccount.password}. Accounts in this prototype are stored only on this device.`}
+              Already runs five campaigns at different stages, so you can explore the creator dashboard, campaign
+              management and reports without creating one first.
+            </Text>
+            <Text variant="footnote" tabular selectable>
+              {`${demo.demoAccount.email} · ${demo.demoAccount.password}`}
             </Text>
             <Button
-              label="Use test account"
+              label="Fill in sample account"
               variant="secondary"
               size="sm"
               onPress={() => {
+                setFormError(null);
                 setValue('email', demo.demoAccount.email, { shouldValidate: true });
                 setValue('password', demo.demoAccount.password, { shouldValidate: true });
               }}
@@ -230,6 +264,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
   },
   formErrorText: { flex: 1 },
-  demo: { gap: space.sm },
-  demoHeader: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  sample: { gap: space.sm },
+  sampleHeader: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
 });

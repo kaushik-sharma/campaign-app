@@ -14,11 +14,11 @@ import type {
 
 import type { CampaignService } from '../contracts';
 import { ServiceError } from '../errors';
-import { mockAuthService } from './auth';
 import { db } from './db';
 import { GUEST } from './events';
 import { advanceDue } from './lifecycle';
 import { simulateRequest } from './network';
+import { currentUser } from './session';
 
 const answer = z.enum(['no', 'somewhat', 'yes']);
 const feedbackSchema = z.object({ visualsEncouraged: answer, changedMind: answer });
@@ -222,7 +222,7 @@ export const mockCampaignService: CampaignService = {
   getEngagement(id, opts) {
     return simulateRequest(async () => {
       await db.ready();
-      const user = (await mockAuthService.getSession())?.user;
+      const user = await currentUser();
       return user ? db.engagement(user.id, id) : { following: false, saved: false };
     }, opts);
   },
@@ -230,7 +230,7 @@ export const mockCampaignService: CampaignService = {
   setEngagement(id, patch) {
     return simulateRequest(async () => {
       await db.ready();
-      const user = (await mockAuthService.getSession())?.user;
+      const user = await currentUser();
       if (!user) throw new ServiceError('unauthorized', 'Sign in to follow or save campaigns.');
       const campaign = db.tables.campaigns.get(id);
       if (!campaign || !isPublic(campaign.status)) throw new ServiceError('not-found', 'Campaign not found');
@@ -244,7 +244,7 @@ export const mockCampaignService: CampaignService = {
     return simulateRequest(async () => {
       await db.ready();
       advanceDue();
-      const user = (await mockAuthService.getSession())?.user ?? null;
+      const user = await currentUser();
       const ids =
         kind === 'backed' ? db.backedBy(user?.id ?? GUEST) : user ? db.engagedBy(user.id, kind) : [];
       return ids

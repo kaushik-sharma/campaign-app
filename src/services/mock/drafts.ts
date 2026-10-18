@@ -13,18 +13,14 @@ import type { Campaign, User } from '@/domain/types';
 
 import type { CreatorService, DraftService } from '../contracts';
 import { ServiceError } from '../errors';
-import { mockAuthService } from './auth';
 import { toSummary } from './campaigns';
 import { db } from './db';
 import { addEvent, notifyStakeholders, randomId } from './events';
 import { advanceDue } from './lifecycle';
 import { simulateRequest } from './network';
+import { currentUser } from './session';
 
 type StoredDraft = Draft & { campaignId: string | null };
-
-async function currentUser(): Promise<User | null> {
-  return (await mockAuthService.getSession())?.user ?? null;
-}
 
 /** Guest drafts (no owner) belong to whoever uses this device; account drafts to their owner. */
 function visibleTo(d: StoredDraft, user: User | null) {
