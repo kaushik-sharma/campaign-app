@@ -5,7 +5,6 @@ import Animated, {
   FadeIn,
   FadeInDown,
   useAnimatedStyle,
-  useReducedMotion,
   useSharedValue,
   withRepeat,
   withTiming,
@@ -27,6 +26,7 @@ import type { CampaignStatus } from '@/domain/lifecycle';
 import type { Campaign } from '@/domain/types';
 import { useDraftForCampaign, useMyCampaign } from '@/features/creator/queries';
 import { formatRelative } from '@/lib/format';
+import { useReducedMotion } from '@/lib/reduced-motion';
 import { duration, layout, radius, space, useTheme } from '@/theme';
 
 type StepState = 'done' | 'current' | 'upcoming' | 'stopped';

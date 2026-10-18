@@ -59,7 +59,7 @@ export default function AuthScreen() {
           ? await signUp(values)
           : await signIn({ email: values.email, password: values.password });
       haptics.success();
-      toast(`Signed in as ${session.user.name}`, 'success');
+      toast(mode === 'sign-up' ? `Welcome to Campaigns, ${session.user.name}` : `Signed in as ${session.user.name}`, 'success');
       router.back();
     } catch (e) {
       if (isServiceError(e) && e.fieldErrors) {

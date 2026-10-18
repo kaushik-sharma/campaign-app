@@ -26,7 +26,7 @@ const NOTIFICATION_KINDS: [ActivityKind, string][] = [
   ['payment-succeeded', 'Payment succeeded'],
   ['payment-pending', 'Payment pending'],
   ['payment-failed', 'Payment declined'],
-  ['payment-cancelled', 'Payment cancelled'],
+  ['payment-cancelled', 'Payment canceled'],
   ['refund', 'Refund issued'],
   ['milestone', 'Funding milestone'],
   ['goal-reached', 'Goal reached'],

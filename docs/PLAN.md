@@ -45,7 +45,7 @@ Phases 1–5 ran in **Expo Go**; from Phase 6 the app runs as a development buil
 | 3 | Back a Campaign (amount → review → simulated checkout → result), receipts, follow/save | 4h | done |
 | 4 | 5-step creation (Basics → Story → Campaign & Ad Visuals → Reach → Submit), voice/AI demo, autosave, lifecycle simulator | 8.5h | done |
 | 5 | Activity, Profile, Creator Dashboard, Reports, info pages | 5.5h | done |
-| 6 | Real auth (Firebase), hardening, APK (staged), demo video | 4h | auth done |
+| 6 | Real auth (Firebase), hardening, APK (staged), demo video | 4h | auth, reduced motion, icon and copy done; APK and video left |
 
 Every phase ends running on device, lint + typecheck clean, no dead taps, both themes correct.
 

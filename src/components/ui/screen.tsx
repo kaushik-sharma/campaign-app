@@ -14,6 +14,7 @@ import { layout, space, useTheme } from '@/theme';
 
 import { IconButton } from './icon-button';
 import { ArrowLeftIcon } from './icons';
+import { LogoMark } from './logo';
 import { Text } from './text';
 
 const COMPACT_HEADER = 48;
@@ -132,6 +133,7 @@ export function Screen({
         />
         {brand ? (
           <View style={styles.brand}>
+            <LogoMark size={24} />
             <Text variant="title3" accessibilityRole="header">
               {title}
             </Text>
@@ -177,5 +179,5 @@ const styles = StyleSheet.create({
   headerSide: { width: 88, flexDirection: 'row', alignItems: 'center' },
   headerRight: { justifyContent: 'flex-end' },
   headerTitle: { flex: 1, alignItems: 'center' },
-  brand: { flex: 1, paddingHorizontal: layout.gutter - space.sm },
+  brand: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: space.sm, paddingHorizontal: layout.gutter - space.sm },
 });

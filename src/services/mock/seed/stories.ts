@@ -3,7 +3,7 @@ import type { CampaignUpdate, Source, StoryBlock } from '@/domain/types';
 import { storyImages } from './images';
 
 /**
- * Seed stories and sources. Demo content: the organisations are fictional, but every source links
+ * Seed stories and sources. Demo content: the organizations are fictional, but every source links
  * to a real, publicly available page, and statistics only state what those sources say.
  */
 type StorySeed = { story: StoryBlock[]; sources: Source[]; updates?: CampaignUpdate[] };
@@ -22,7 +22,7 @@ export const stories: Record<string, StorySeed> = {
     ],
     story: [
       p('b1', 'Behind the community garden on Mill Creek sits four acres of reeds, shallow water and birdsong. It is the last wetland left along the creek, and a proposed parking expansion would pave most of it.'),
-      h('b2', 'What the wetland does for the neighbourhood'),
+      h('b2', 'What the wetland does for the neighborhood'),
       p('b3', 'Wetlands work like sponges. They soak up stormwater, slow it down and release it gradually, which eases flooding downstream. They also filter sediment and pollutants before water reaches the creek.'),
       { id: 'b4', type: 'stat', value: '~1 million gallons', label: 'Floodwater one acre of wetland can typically store', sourceId: 's1' },
       { id: 'b5', type: 'image', image: storyImages['riverside-wetlands'], caption: 'Egrets and herons feed in the wetland’s shallow water through the summer.' },
@@ -110,7 +110,7 @@ export const stories: Record<string, StorySeed> = {
       { id: 's2', title: 'Feeding America', publisher: 'Feeding America', url: 'https://www.feedingamerica.org/' },
     ],
     story: [
-      p('b1', 'There are more free food pantries on Detroit’s East Side than most residents realise. Many families who qualify never visit one, and the most common reason they give is simple: they didn’t know it was there.'),
+      p('b1', 'There are more free food pantries on Detroit’s East Side than most residents realize. Many families who qualify never visit one, and the most common reason they give is simple: they didn’t know it was there.'),
       h('b2', 'One map, every pantry'),
       p('b3', 'Volunteers visited every pantry on the East Side to confirm hours, what paperwork is needed (usually none) and whether they deliver. The result is one simple map that works on any phone.'),
       p('b4', 'The USDA measures how many households struggle to afford enough food every year. Behind each number is a family deciding between groceries and rent.'),
@@ -124,7 +124,7 @@ export const stories: Record<string, StorySeed> = {
       { id: 's1', title: 'Americans for the Arts', publisher: 'Americans for the Arts', url: 'https://www.americansforthearts.org/' },
     ],
     story: [
-      p('b1', 'Twelve murals line San Antonio’s Main Street, each painted by a local artist and each telling a piece of the neighbourhood’s history: the family bakery, the flood of 1921, the first Tejano radio station.'),
+      p('b1', 'Twelve murals line San Antonio’s Main Street, each painted by a local artist and each telling a piece of the neighborhood’s history: the family bakery, the flood of 1921, the first Tejano radio station.'),
       h('b2', 'A short series, one mural at a time'),
       p('b3', 'Each video is under two minutes: the artist, the wall and the story behind it. The goal is simple: give people a reason to walk downtown and see them in person.'),
       { id: 'b4', type: 'quote', text: 'Every one of these walls was painted for the people who live here. Most of them have never stopped to look.', attribution: 'Lena Ortiz' },
@@ -163,7 +163,7 @@ export const stories: Record<string, StorySeed> = {
       h('b2', 'Why a phone call works'),
       p('b3', 'Older bodies regulate temperature less well, and some medicines make it harder. People who live alone may not notice warning signs in themselves, and no one else is there to notice for them.'),
       p('b4', 'A two-minute call during a heat advisory can catch problems early: Is it cool where you are? Are you drinking water? Do you need a ride somewhere with air conditioning?'),
-      { id: 'b5', type: 'quote', text: 'The most effective heat plan we’ve found is a neighbour with a phone.', attribution: 'Cool Blocks Initiative' },
+      { id: 'b5', type: 'quote', text: 'The most effective heat plan we’ve found is a neighbor with a phone.', attribution: 'Cool Blocks Initiative' },
     ],
     updates: [
       { id: 'u1', title: 'Ads live in three cities', body: 'Ads are now running in Phoenix, Las Vegas and Tucson ahead of the next forecast heat advisory.', at: daysAgo(4) },
@@ -213,7 +213,7 @@ export const stories: Record<string, StorySeed> = {
       { id: 's2', title: 'Lead Service Lines', publisher: 'U.S. Environmental Protection Agency', url: 'https://www.epa.gov/ground-water-and-drinking-water/lead-service-lines' },
     ],
     story: [
-      p('b1', 'A service line is the pipe that carries water from the main under the street into your home. In older neighbourhoods, many of them are still made of lead.'),
+      p('b1', 'A service line is the pipe that carries water from the main under the street into your home. In older neighborhoods, many of them are still made of lead.'),
       { id: 'b2', type: 'image', image: storyImages['lead-pipes'], caption: 'Lead service lines installed decades ago are still in use in many older cities.' },
       p('b3', 'According to the EPA, lead in drinking water can harm health, and children are especially vulnerable. Replacing lead lines is the most reliable fix, but residents first need to know whether they have one.'),
       h('b4', 'Look it up in a minute'),

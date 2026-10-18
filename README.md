@@ -1,56 +1,70 @@
-# Welcome to your Expo app 👋
+# Campaigns
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A mobile app for community-funded message amplification. Creators publish a campaign (a message, the sources behind it, and the ads that will carry it); after review, backers pool contributions that pay for those ads to reach people outside the creator's own network. Every campaign ends with a public report of what was raised, spent and reached.
 
-## Get started
+This is a prototype. Sign-in is real (Firebase email and password); campaigns, payments, review and ad delivery are simulated on the device, and no real money moves.
 
-1. Install dependencies
+## Stack
 
-   ```bash
-   npm install
-   ```
+Expo SDK 57 · React Native 0.86 (New Architecture) · Expo Router · Reanimated 4 and Gesture Handler · TanStack Query · Zustand · react-hook-form and zod · React Native Firebase (Auth) · TypeScript (strict).
 
-2. Start the app
+## Run it
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+The app uses native code (Firebase), so it runs as a development build rather than in Expo Go.
 
 ```bash
-npm run reset-project
+npm install
+npm run ios       # builds and installs on the iOS simulator
+npm run android   # builds and installs on an Android emulator or device
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+After changing native configuration (`app.json`, plugins, icons, splash), regenerate the native projects first:
 
-### Other setup steps
+```bash
+npx expo prebuild --clean
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+`npm run ios:go` / `npm run android:go` still open the app in Expo Go. Firebase isn't available there, so sign-in falls back to accounts stored on the device. Set `EXPO_PUBLIC_AUTH=mock` to use that fallback in a development build too.
 
-## Learn more
+### Firebase
 
-To learn more about developing your project with Expo, look at the following resources:
+- Config files: `GoogleService-Info.plist` (iOS) and `google-services.json` (Android), for the bundle id / package `com.anonymous.campaignapp`.
+- In the Firebase console, enable **Authentication → Sign-in method → Email/Password**.
+- Sample creator account: `demo@campaigns.app` / `demo1234`. Create it in the console or with "Create account" in the app. It owns five seeded campaigns at different stages, for exploring the creator dashboard, campaign management and reports.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Checks
 
-## Join the community
+```bash
+npx expo lint
+npx tsc --noEmit
+npx expo-doctor
+```
 
-Join our community of developers creating universal apps.
+## Project layout
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```
+src/
+  app/          Routes (Expo Router). Every file is a screen.
+  components/   UI, grouped by feature; shared primitives in components/ui
+  features/     Data hooks (TanStack Query) that screens use
+  services/     Typed service contracts, Firebase auth and the on-device sample backend
+  domain/       Business rules: fees, reach estimates, lifecycle, reports
+  content/      Static copy (info pages, voice prompts)
+  config/       Every simulation assumption in one place
+  lib/          Formatting, storage, haptics, reduced motion
+  stores/       Small client state (Zustand): preferences, toasts, hero transition
+  theme/        Design tokens and theming
+docs/PLAN.md    Build plan, decisions and phase status
+```
+
+Screens never import the sample backend directly (enforced by ESLint); they go through `src/features` hooks and the `@/services` facade, so a real backend can replace each service without UI changes.
+
+## Icon
+
+The app icon, Android adaptive icon layers and splash images are generated from one vector drawing of the Campaigns mark: a dot with two ripples, open on the right like a "C". To regenerate them after changing the drawing:
+
+```bash
+npm run icons
+```
+
+The same geometry is drawn in the app by `LogoMark` (`src/components/ui/logo.tsx`).

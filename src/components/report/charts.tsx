@@ -14,7 +14,7 @@ import { duration, easing, radius, space, useTheme } from '@/theme';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 
-/** One labelled horizontal bar that grows in from zero. */
+/** One labeled horizontal bar that grows in from zero. */
 export function BarRow({
   label,
   value,

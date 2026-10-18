@@ -37,7 +37,7 @@ const COPY = {
   succeeded: { title: 'You’re backing this campaign' },
   pending: { title: 'Payment processing' },
   failed: { title: 'Payment declined' },
-  cancelled: { title: 'Payment cancelled' },
+  cancelled: { title: 'Payment canceled' },
 } as const;
 
 /** Processing, then one of the four outcomes, each with the next action that makes sense. */
@@ -180,7 +180,7 @@ export function ResultStep({ campaign, contribution, processingLabel, onTryAgain
             </View>
             <Divider />
             <Text variant="footnote" color="textMuted">
-              {`${money(c.totalChargeCents)} authorised · Receipt ${c.receiptNumber}`}
+              {`${money(c.totalChargeCents)} authorized · Receipt ${c.receiptNumber}`}
             </Text>
           </Card>
         </Animated.View>

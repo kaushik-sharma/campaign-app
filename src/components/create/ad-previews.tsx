@@ -36,7 +36,7 @@ function Img({ image, style }: { image: ImageAsset | null; style: object }) {
 
 /**
  * How the ad could look in four generic placements. These are neutral mock-ups, not imitations
- * of any real platform, and are labelled as such.
+ * of any real platform, and are labeled as such.
  */
 export function AdPreview({ placement, ad, image, creatorName }: Props) {
   const { colors } = useTheme();

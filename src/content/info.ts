@@ -52,7 +52,7 @@ export const infoPages: Record<InfoSlug, InfoPage> = {
     sections: [
       { heading: 'Is my contribution a donation?', body: 'No. It pays for advertising that spreads the campaign’s message. It doesn’t go to the creator or fund the cause directly.' },
       { heading: 'What fees are there?', body: `Card processing (${(demo.fees.processingPct * 100).toFixed(1)}% + $${(demo.fees.processingFixedCents / 100).toFixed(2)}) is added at checkout so your full contribution reaches the pool. Of the funds raised, ${feePct}% is a platform fee for review, ad setup and reporting; ${adPct}% buys ads.` },
-      { heading: 'How is reach estimated?', body: `From demo assumptions: an average cost of $${demo.reach.assumedCpmUsd} per 1,000 ad views and ${demo.reach.avgFrequency} views per person, shown as a ±${Math.round(demo.reach.spread * 100)}% range. Actual reach depends on ad inventory, prices, targeting and performance, and is never guaranteed.` },
+      { heading: 'How is reach estimated?', body: `From two assumptions: an average cost of $${demo.reach.assumedCpmUsd} per 1,000 ad views and ${demo.reach.avgFrequency} views per person, shown as a ±${Math.round(demo.reach.spread * 100)}% range. Actual reach depends on ad inventory, prices, targeting and performance, and is never guaranteed.` },
       { heading: 'What if the goal isn’t reached?', body: `Funds raised still pay for a smaller ad run, unless less than ${minimum} was raised. In that case every backer is refunded in full.` },
       { heading: 'What happens to unspent money?', body: 'If ads can’t spend the full budget, the unspent amount is refunded to backers in proportion to what they contributed.' },
       { heading: 'Does funding mean ads start immediately?', body: 'No. Once funding closes, our team prepares and approves the ads with distribution partners. Ads start only when approval, payment and setup are complete.' },
@@ -63,7 +63,7 @@ export const infoPages: Record<InfoSlug, InfoPage> = {
     title: 'Help',
     intro: 'Something not working as expected? Start here.',
     sections: [
-      { heading: 'A payment failed', body: 'Failed and cancelled payments are never charged. You can try again from the campaign page.' },
+      { heading: 'A payment failed', body: 'Failed and canceled payments are never charged. You can try again from the campaign page.' },
       { heading: 'I can’t find a campaign', body: 'Only reviewed campaigns appear in Explore. Campaigns still in review are visible to their creator only.' },
       { heading: 'My campaign needs changes', body: 'If review asks for changes, you’ll get a notification with the reviewer’s notes. Edit the draft and resubmit.' },
       { heading: 'Still stuck?', body: 'Contact us and we’ll get back to you within two working days.' },
@@ -82,7 +82,7 @@ export const infoPages: Record<InfoSlug, InfoPage> = {
     intro: 'Ads run on established advertising networks across social feeds, stories, search, video and news sites.',
     sections: [
       { body: 'We choose networks for each campaign based on its audience and channels. The specific networks used are named in each campaign’s final report.' },
-      { heading: 'Our commitments', body: 'Every ad is labelled as sponsored, links back to the campaign page, and targets broad audiences only. Backer information is never shared with ad networks.' },
+      { heading: 'Our commitments', body: 'Every ad is labeled as sponsored, links back to the campaign page, and targets broad audiences only. Backer information is never shared with ad networks.' },
     ],
   },
   terms: {
@@ -92,7 +92,7 @@ export const infoPages: Record<InfoSlug, InfoPage> = {
     sections: [
       { heading: 'Contributions', body: 'Contributions fund distribution of a campaign’s message. They are not donations, purchases or investments.' },
       { heading: 'Review and publication', body: 'We may approve, request changes to or decline any campaign. No campaign is published or advertised before review is complete.' },
-      { heading: 'Refunds', body: `If a campaign raises less than ${minimum}, is declined, cancelled or cannot be distributed, backers are refunded. Unspent ad budget is refunded proportionally.` },
+      { heading: 'Refunds', body: `If a campaign raises less than ${minimum}, is declined, canceled or cannot be distributed, backers are refunded. Unspent ad budget is refunded proportionally.` },
     ],
   },
   privacy: {
@@ -100,6 +100,7 @@ export const infoPages: Record<InfoSlug, InfoPage> = {
     intro: 'What we collect and why.',
     illustrative: true,
     sections: [
+      { heading: 'Accounts', body: 'Your name, email address and password are handled by our sign-in provider, Google Firebase, to keep you signed in. Passwords are never stored by Campaigns or visible to us.' },
       { heading: 'Backers', body: 'We collect the details needed to process a payment and send a receipt. Guest backers only need an email address. Names are private unless you choose to show them.' },
       { heading: 'Advertising', body: 'Ads target broad groups by location, age and interests. We never share backer or creator account details with advertising partners.' },
       { heading: 'Your choices', body: 'You can change notification and visibility settings at any time from your profile.' },

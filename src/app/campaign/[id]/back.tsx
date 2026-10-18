@@ -229,7 +229,7 @@ export default function BackCampaignScreen() {
           <ResultStep
             campaign={campaign}
             contribution={contribution}
-            processingLabel={cancelling ? 'Cancelling payment' : 'Processing payment'}
+            processingLabel={cancelling ? 'Canceling payment' : 'Processing payment'}
             onTryAgain={() => restartPayment('checkout')}
             onChangeAmount={() => restartPayment('amount')}
             onReturnToPayment={() => restartPayment('checkout')}

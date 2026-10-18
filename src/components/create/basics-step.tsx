@@ -87,7 +87,7 @@ export function BasicsStep({ draft, update, errors }: StepProps) {
       </FieldGroup>
 
       <TextField
-        label="Creator or organisation name"
+        label="Creator or organization name"
         required
         value={basics.creatorName}
         onChangeText={(creatorName) => setBasics({ creatorName })}

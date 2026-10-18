@@ -6,7 +6,7 @@ export const contributionStatusMeta: Record<ContributionStatus, { label: string;
   succeeded: { label: 'Paid', tone: 'success', charged: true },
   pending: { label: 'Pending', tone: 'warning', charged: true },
   failed: { label: 'Declined', tone: 'danger', charged: false },
-  cancelled: { label: 'Cancelled', tone: 'neutral', charged: false },
+  cancelled: { label: 'Canceled', tone: 'neutral', charged: false },
 };
 
 /** The fee breakdown recorded at payment time (never recomputed, so old receipts stay accurate). */

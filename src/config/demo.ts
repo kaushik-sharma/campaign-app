@@ -1,5 +1,5 @@
 /**
- * Every demo assumption in one place. Figures derived from these are always labelled
+ * Every demo assumption in one place. Figures derived from these are always labeled
  * as estimates or demo data in the UI.
  */
 export const demo = {

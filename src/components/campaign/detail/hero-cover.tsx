@@ -3,6 +3,7 @@ import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, { useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
 
 import type { CategoryId, ImageAsset } from '@/domain/types';
+import { useReducedMotion } from '@/lib/reduced-motion';
 import type { HeroRect } from '@/stores/hero';
 
 import { CoverImage } from '../cover-image';
@@ -27,7 +28,8 @@ function CoverArt({ image, category, height }: CoverProps) {
 
 /**
  * Detail page cover: parallax while scrolling down, stretches to fill on pull-down.
- * Both are transforms computed on the UI thread from the scroll position.
+ * Both are transforms computed on the UI thread from the scroll position. With reduced motion the
+ * cover scrolls with the page (no parallax); the stretch stays, as it follows the finger directly.
  */
 export function HeroCover({ scrollY, landed, ...cover }: CoverProps & {
   scrollY: SharedValue<number>;
@@ -35,11 +37,12 @@ export function HeroCover({ scrollY, landed, ...cover }: CoverProps & {
   landed: SharedValue<number>;
 }) {
   const { height } = cover;
+  const reduced = useReducedMotion();
   const imageStyle = useAnimatedStyle(() => {
     const y = scrollY.get();
     // Pulled down: scale about the centre so the top edge stays pinned to the top of the screen.
     if (y < 0) return { opacity: landed.get(), transform: [{ translateY: y / 2 }, { scale: (height - y) / height }] };
-    return { opacity: landed.get(), transform: [{ translateY: y * 0.45 }] };
+    return { opacity: landed.get(), transform: [{ translateY: reduced ? 0 : y * 0.45 }] };
   });
 
   return (

@@ -3,7 +3,6 @@ import { StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
-  useReducedMotion,
   useSharedValue,
   withDelay,
   withRepeat,
@@ -13,6 +12,7 @@ import Animated, {
 
 import { MicrophoneIcon } from '@/components/ui/icons';
 import { PressableScale } from '@/components/ui/pressable-scale';
+import { useReducedMotion } from '@/lib/reduced-motion';
 import { useTheme } from '@/theme';
 
 const MIC = 88;

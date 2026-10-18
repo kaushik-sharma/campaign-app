@@ -18,6 +18,7 @@ import type { VoiceAnswers } from '@/domain/draft';
 import { useDraftFromAnswers } from '@/features/ai/queries';
 import { useCreateDraft } from '@/features/drafts/queries';
 import { haptics } from '@/lib/haptics';
+import { useReducedMotion } from '@/lib/reduced-motion';
 import { toast } from '@/stores/toast';
 import { duration, layout, radius, space, useTheme } from '@/theme';
 
@@ -35,6 +36,7 @@ const TICK_MS = 28;
  */
 export default function VoiceScreen() {
   const { colors } = useTheme();
+  const reduced = useReducedMotion();
   const insets = useSafeAreaInsets();
   const draftFromAnswers = useDraftFromAnswers();
   const createDraft = useCreateDraft();
@@ -50,22 +52,31 @@ export default function VoiceScreen() {
   const answer = answers[index];
   const setAnswer = (text: string) => setAnswers((a) => a.map((x, i) => (i === index ? text : x)));
 
-  // Type the demo transcript out while "listening".
+  // Type the demo transcript out while "listening". With reduced motion, it appears whole once
+  // the same listening time has passed.
   useEffect(() => {
     if (phase !== 'listening') return;
     const full = DEMO_TRANSCRIPTS[index];
+    const finish = () => {
+      setShown(full.length);
+      setPhase('heard');
+      haptics.success();
+    };
+    if (reduced) {
+      const timer = setTimeout(finish, Math.ceil(full.length / CHARS_PER_TICK) * TICK_MS);
+      return () => clearTimeout(timer);
+    }
     let count = 0;
     const timer = setInterval(() => {
       count = Math.min(full.length, count + CHARS_PER_TICK);
       setShown(count);
       if (count >= full.length) {
         clearInterval(timer);
-        setPhase('heard');
-        haptics.success();
+        finish();
       }
     }, TICK_MS);
     return () => clearInterval(timer);
-  }, [phase, index]);
+  }, [phase, index, reduced]);
 
   // Cycle the "what AI is doing" line while drafting.
   useEffect(() => {

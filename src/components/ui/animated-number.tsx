@@ -43,7 +43,7 @@ type Props = {
   from?: number;
   delay?: number;
   /**
-   * For numbers inside a row of text: sizes the number to its final value so neighbours sit where
+   * For numbers inside a row of text: sizes the number to its final value so neighbors sit where
    * they will end up (a native text input does not re-measure while it counts).
    */
   inline?: boolean;

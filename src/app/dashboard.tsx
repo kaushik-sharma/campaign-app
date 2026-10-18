@@ -120,7 +120,7 @@ export default function DashboardScreen() {
   };
 
   const confirmDelete = (d: DraftSummary) =>
-    Alert.alert('Delete this draft?', `“${d.title || 'Untitled campaign'}” will be removed. This can’t be undone.`, [
+    Alert.alert('Delete this draft?', `“${d.title || 'Untitled campaign'}” will be removed from this device. This can’t be undone.`, [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete',

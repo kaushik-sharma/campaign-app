@@ -5,7 +5,6 @@ import Animated, {
   Easing,
   useAnimatedProps,
   useAnimatedStyle,
-  useReducedMotion,
   useSharedValue,
   withDelay,
   withRepeat,
@@ -18,6 +17,7 @@ import { scheduleOnRN } from 'react-native-worklets';
 
 import { ClockIcon } from '@/components/ui/icons';
 import { haptics } from '@/lib/haptics';
+import { useReducedMotion } from '@/lib/reduced-motion';
 import { duration, easing, spring, useTheme } from '@/theme';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
@@ -129,7 +129,7 @@ export function PaymentStatusIcon({ state }: { state: PaymentVisualState }) {
     succeeded: 'Payment succeeded',
     pending: 'Payment pending',
     failed: 'Payment failed',
-    cancelled: 'Payment cancelled',
+    cancelled: 'Payment canceled',
   }[state];
 
   return (

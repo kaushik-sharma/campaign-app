@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
-  useReducedMotion,
   useSharedValue,
   withDelay,
   withRepeat,
@@ -15,6 +14,7 @@ import { demo } from '@/config/demo';
 import type { CampaignStatus } from '@/domain/lifecycle';
 import type { Campaign } from '@/domain/types';
 import { formatDate } from '@/lib/format';
+import { useReducedMotion } from '@/lib/reduced-motion';
 import { duration, easing, space, useTheme } from '@/theme';
 
 type State = 'done' | 'current' | 'upcoming' | 'stopped';

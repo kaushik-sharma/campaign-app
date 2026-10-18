@@ -63,7 +63,7 @@ export function FieldMessage({ error, helper }: { error?: string; helper?: strin
   ) : null;
 }
 
-/** A labelled group for non-text inputs (chips, images, sliders), with the same error treatment as TextField. */
+/** A labeled group for non-text inputs (chips, images, sliders), with the same error treatment as TextField. */
 export function FieldGroup({
   label,
   required,

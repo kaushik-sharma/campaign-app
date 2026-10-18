@@ -230,7 +230,7 @@ const text = (label: string, min: number, max: number) =>
 const basicsSchema = z.object({
   title: text('a title', c.titleMin, c.titleMax),
   category: z.string({ error: 'Choose a category' }),
-  creatorName: text('your name or organisation', 2, 60),
+  creatorName: text('your name or organization', 2, 60),
   creatorType: z.string({ error: 'Choose who is creating this' }),
   summary: text('a summary', c.summaryMin, c.summaryMax),
   cover: z.object({}, { error: 'Add a cover image' }).passthrough(),

@@ -1,6 +1,6 @@
 /**
  * The guided voice questions and the demo transcripts typed out on screen. Speech recognition
- * isn't available in Expo Go, so the voice flow is a clearly labelled demo; "Type instead" lets
+ * isn't available in Expo Go, so the voice flow is a clearly labeled demo; "Type instead" lets
  * people answer in their own words.
  */
 export const VOICE_QUESTIONS = [

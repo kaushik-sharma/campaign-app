@@ -16,6 +16,13 @@ module.exports = defineConfig([
       'no-restricted-imports': [
         'error',
         {
+          paths: [
+            {
+              name: 'react-native-reanimated',
+              importNames: ['useReducedMotion'],
+              message: 'Use useReducedMotion from @/lib/reduced-motion: it follows the setting live.',
+            },
+          ],
           patterns: [
             {
               group: ['@/services/mock', '@/services/mock/*', '**/services/mock/*'],

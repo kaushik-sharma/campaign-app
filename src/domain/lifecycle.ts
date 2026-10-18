@@ -110,9 +110,9 @@ export const statusMeta: Record<CampaignStatus, StatusMeta> = {
   rejected: {
     label: 'Not approved',
     tone: 'danger',
-    next: 'This campaign did not meet the campaign rules.',
+    next: 'This campaign didn’t meet the campaign rules.',
   },
-  cancelled: { label: 'Cancelled', tone: 'neutral', next: 'This campaign was cancelled.' },
+  cancelled: { label: 'Canceled', tone: 'neutral', next: 'This campaign was canceled.' },
   'refund-pending': {
     label: 'Refund pending',
     tone: 'warning',
@@ -121,7 +121,7 @@ export const statusMeta: Record<CampaignStatus, StatusMeta> = {
   failed: {
     label: 'Distribution failed',
     tone: 'danger',
-    next: 'Ads could not be delivered. Unspent funds are refunded.',
+    next: 'Ads couldn’t be delivered. Unspent funds are refunded.',
   },
 };
 

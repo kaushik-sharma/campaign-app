@@ -2,6 +2,7 @@ import { Image } from 'expo-image';
 import { StyleSheet, View, type ImageStyle, type StyleProp, type ViewStyle } from 'react-native';
 
 import type { CategoryId, ImageAsset } from '@/domain/types';
+import { useReducedMotion } from '@/lib/reduced-motion';
 import { duration, useTheme } from '@/theme';
 
 import { categoryIcons } from './category-icon';
@@ -17,6 +18,8 @@ type Props = {
 /** Campaign cover with a blurhash placeholder; falls back to a category tile when missing. */
 export function CoverImage({ image, category, style, decorative = true }: Props) {
   const { categoryTint, colors } = useTheme();
+  // Reduced motion: the photo replaces its placeholder without a cross-fade.
+  const reduced = useReducedMotion();
 
   if (!image) {
     const Icon = categoryIcons[category];
@@ -32,7 +35,7 @@ export function CoverImage({ image, category, style, decorative = true }: Props)
       source={image.source}
       placeholder={image.blurhash ? { blurhash: image.blurhash } : undefined}
       contentFit="cover"
-      transition={duration.base}
+      transition={reduced ? 0 : duration.base}
       accessible={!decorative}
       accessibilityLabel={decorative ? undefined : image.alt}
       style={[{ backgroundColor: categoryTint(category) }, style]}

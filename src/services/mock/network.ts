@@ -36,14 +36,14 @@ export const networkControls = {
 
 function wait(ms: number, signal?: AbortSignal): Promise<void> {
   return new Promise((resolve, reject) => {
-    if (signal?.aborted) return reject(new ServiceError('aborted', 'Request cancelled'));
+    if (signal?.aborted) return reject(new ServiceError('aborted', 'Request canceled'));
     const timer = setTimeout(() => {
       signal?.removeEventListener('abort', onAbort);
       resolve();
     }, ms);
     function onAbort() {
       clearTimeout(timer);
-      reject(new ServiceError('aborted', 'Request cancelled'));
+      reject(new ServiceError('aborted', 'Request canceled'));
     }
     signal?.addEventListener('abort', onAbort, { once: true });
   });

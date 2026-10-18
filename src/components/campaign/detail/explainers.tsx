@@ -126,7 +126,7 @@ export function AudienceDistribution({ campaign }: { campaign: Campaign }) {
         <View style={styles.group}>
           <Label>Privacy and ad disclosure</Label>
           <Bullet>Ads target broad groups by location, age and interests. Backers’ details are never shared with advertisers.</Bullet>
-          <Bullet>Every ad is labelled as sponsored and links back to this page.</Bullet>
+          <Bullet>Every ad is labeled as sponsored and links back to this page.</Bullet>
           <Bullet>Reach is estimated. Actual delivery depends on ad inventory, prices and performance.</Bullet>
         </View>
       </View>

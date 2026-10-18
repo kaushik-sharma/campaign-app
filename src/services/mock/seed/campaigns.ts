@@ -52,7 +52,7 @@ const seeds: Seed[] = [
       name: 'Friends of Mill Creek',
       type: 'community-group',
       location: 'Portland, OR',
-      bio: 'Volunteer neighbours who have restored and monitored Mill Creek since 2011.',
+      bio: 'Volunteer neighbors who have restored and monitored Mill Creek since 2011.',
     },
     status: 'funding',
     goal: 12_000,
@@ -78,7 +78,7 @@ const seeds: Seed[] = [
     suggestedActions: [
       'Submit a public comment before the deadline',
       'Visit the wetland trail on a weekend walk',
-      'Share the story with a neighbour',
+      'Share the story with a neighbor',
     ],
   },
   {
@@ -205,7 +205,7 @@ const seeds: Seed[] = [
       name: 'Better Bus Coalition',
       type: 'community-group',
       location: 'Boston, MA',
-      bio: 'Riders organising for frequent, reliable, accessible buses.',
+      bio: 'Riders organizing for frequent, reliable, accessible buses.',
     },
     status: 'funding',
     goal: 8_000,
@@ -276,7 +276,7 @@ const seeds: Seed[] = [
       name: 'Eastside Mutual Aid',
       type: 'community-group',
       location: 'Detroit, MI',
-      bio: 'Neighbours helping neighbours with food, rides and repairs.',
+      bio: 'Neighbors helping neighbors with food, rides and repairs.',
     },
     status: 'completed',
     goal: 5_000,
@@ -304,7 +304,7 @@ const seeds: Seed[] = [
     id: 'main-street-murals',
     title: 'The Stories Behind Main Street’s Murals',
     summary:
-      'Twelve murals, twelve local artists, and the neighbourhood histories they paint. A short video series to bring visitors back downtown.',
+      'Twelve murals, twelve local artists, and the neighborhood histories they paint. A short video series to bring visitors back downtown.',
     category: 'arts-culture',
     creator: {
       id: 'c-lena-ortiz',
@@ -435,10 +435,10 @@ const seeds: Seed[] = [
     },
     ad: {
       headline: 'Heat advisory today? Make one call.',
-      description: 'Older neighbours living alone are most at risk. A check-in helps.',
+      description: 'Older neighbors living alone are most at risk. A check-in helps.',
       callToAction: 'What to ask',
     },
-    suggestedActions: ['Set a heat-advisory reminder', 'Call an older neighbour today'],
+    suggestedActions: ['Set a heat-advisory reminder', 'Call an older neighbor today'],
   },
   {
     id: 'teen-dinner-talk',
@@ -592,7 +592,7 @@ const seeds: Seed[] = [
       name: 'Greenway Neighbors',
       type: 'community-group',
       location: 'Richmond, VA',
-      bio: 'A neighbourhood association keeping the Greenway clean and green.',
+      bio: 'A neighborhood association keeping the Greenway clean and green.',
     },
     status: 'funding-ended',
     goal: 3_000,

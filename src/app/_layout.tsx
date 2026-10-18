@@ -21,6 +21,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ToastHost } from '@/components/ui/toast-host';
 import { AuthProvider } from '@/features/auth/auth-provider';
 import { queryClient } from '@/features/query-client';
+import { ReducedMotionSync, useReducedMotion } from '@/lib/reduced-motion';
 import { ThemeProvider, useTheme } from '@/theme';
 
 void SplashScreen.preventAutoHideAsync();
@@ -28,6 +29,9 @@ void SplashScreen.preventAutoHideAsync();
 function RootNavigator() {
   const { colors, scheme } = useTheme();
   const base = scheme === 'dark' ? DarkTheme : DefaultTheme;
+  // Reduced motion: pushed screens cross-fade instead of sliding. Modals keep the system's own
+  // presentation, which the OS already adapts.
+  const reduced = useReducedMotion();
 
   useEffect(() => {
     // Matches the native root background to the theme so transitions never flash white.
@@ -48,20 +52,21 @@ function RootNavigator() {
         },
       }}>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg }, animation: reduced ? 'fade' : 'default' }}>
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="auth" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="campaign/[id]/back" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="voice" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="auth" options={{ presentation: 'modal', animation: 'default' }} />
+        <Stack.Screen name="campaign/[id]/back" options={{ presentation: 'modal', animation: 'default' }} />
+        <Stack.Screen name="voice" options={{ presentation: 'modal', animation: 'default' }} />
         {/* Opened from a card with a hero transition: fade, so the flying cover isn't pushed sideways. */}
         <Stack.Screen
           name="campaign/[id]/index"
           options={({ route }) => ({
-            animation: (route.params as { hero?: string } | undefined)?.hero ? 'fade' : 'default',
+            animation: reduced || (route.params as { hero?: string } | undefined)?.hero ? 'fade' : 'default',
           })}
         />
       </Stack>
       <ToastHost />
+      <ReducedMotionSync />
     </NavigationThemeProvider>
   );
 }

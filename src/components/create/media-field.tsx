@@ -15,6 +15,7 @@ import {
 import { Text } from '@/components/ui/text';
 import { checkMedia, type MediaAsset, type MediaCheck } from '@/domain/draft';
 import { pickMedia } from '@/features/drafts/media';
+import { useReducedMotion } from '@/lib/reduced-motion';
 import { toast } from '@/stores/toast';
 import { duration, radius, space, useTheme } from '@/theme';
 
@@ -54,6 +55,7 @@ type Props = {
  */
 export function MediaField({ asset, role, onChange, onGenerate, aspectRatio = 16 / 9, emptyLabel }: Props) {
   const { colors } = useTheme();
+  const reduced = useReducedMotion();
   const [generating, setGenerating] = useState(false);
   const isVideo = role === 'video';
 
@@ -121,7 +123,7 @@ export function MediaField({ asset, role, onChange, onGenerate, aspectRatio = 16
         <Image
           source={asset.image.source}
           contentFit="cover"
-          transition={duration.base}
+          transition={reduced ? 0 : duration.base}
           accessibilityLabel={asset.image.alt || 'Selected image'}
           style={[styles.image, { aspectRatio, backgroundColor: colors.surfaceSunken }]}
         />

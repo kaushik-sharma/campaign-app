@@ -9,6 +9,7 @@ export * from './divider';
 export * from './estimate';
 export * from './icon-button';
 export * from './list-row';
+export * from './logo';
 export * from './pressable-scale';
 export * from './progress-bar';
 export * from './screen';

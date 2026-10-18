@@ -11,7 +11,8 @@
     "android:go": "expo start --go --android",
     "web": "expo start --web",
     "lint": "expo lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "icons": "node scripts/generate-icons.mjs"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "~0.4.2",
@@ -57,6 +58,7 @@
     "zustand": "~5.0.15"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
     "@types/react": "~19.2.18",
     "eslint": "~9.39.5",
     "eslint-config-expo": "~57.0.2",

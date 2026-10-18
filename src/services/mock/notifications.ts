@@ -40,7 +40,7 @@ function sample(kind: ActivityKind, c: Campaign | null): Draft {
     'payment-succeeded': { kind, link: payments, title: `You backed ${title}`, body: '$25.00 contribution. Your receipt is in Payments.' },
     'payment-pending': { kind, link: payments, title: 'Payment processing', body: `Your bank is confirming your $25.00 contribution to ${title}.` },
     'payment-failed': { kind, link: payments, title: 'Payment declined', body: `Your $25.00 contribution to ${title} didn’t go through. You weren’t charged.` },
-    'payment-cancelled': { kind, link: payments, title: 'Payment cancelled', body: `You cancelled a $25.00 contribution to ${title}. You weren’t charged.` },
+    'payment-cancelled': { kind, link: payments, title: 'Payment canceled', body: `You canceled a $25.00 contribution to ${title}. You weren’t charged.` },
     refund: { kind, link: payments, title: 'Refund on its way', body: `${title} didn’t raise enough to run ads, so your contribution is being refunded.` },
     milestone: { kind, link: page, title: `${title} is 75% funded`, body: c ? `${formatMoney(Math.round(c.goalCents * 0.75))} of ${formatMoney(c.goalCents)} raised so far.` : 'Three quarters of the way there.' },
     'goal-reached': { kind, link: page, title: `${title} reached its goal`, body: 'Ad setup with distribution partners begins next.' },

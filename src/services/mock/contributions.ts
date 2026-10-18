@@ -70,8 +70,8 @@ function recordOutcome(c: Contribution, confirmedLater = false) {
       addEvent(ownerOf(c), {
         ...base,
         kind: 'payment-cancelled',
-        title: 'Payment cancelled',
-        body: `You cancelled a ${amount} contribution to ${c.campaignTitle}. You weren’t charged.`,
+        title: 'Payment canceled',
+        body: `You canceled a ${amount} contribution to ${c.campaignTitle}. You weren’t charged.`,
       });
       break;
   }

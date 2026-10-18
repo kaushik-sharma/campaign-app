@@ -1,9 +1,9 @@
 import { router } from 'expo-router';
 import type { RefObject } from 'react';
 import type { View } from 'react-native';
-import { useReducedMotion } from 'react-native-reanimated';
 
 import type { CampaignSummary } from '@/domain/types';
+import { useReducedMotion } from '@/lib/reduced-motion';
 import { useHeroStore } from '@/stores/hero';
 
 type Options = {

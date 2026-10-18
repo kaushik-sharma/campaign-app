@@ -36,7 +36,7 @@ const NOTES: Record<Contribution['status'], string> = {
     'Your contribution pays for ads for this campaign. If it raises less than the minimum, or the ads can’t spend the whole budget, you’re refunded as described in the funding FAQ.',
   pending: 'Your bank is still confirming this payment. It counts toward the campaign once confirmed.',
   failed: 'This payment was declined, so you weren’t charged and nothing was added to the campaign.',
-  cancelled: 'You cancelled this payment before it was made. You weren’t charged.',
+  cancelled: 'You canceled this payment before it was made. You weren’t charged.',
 };
 
 function ReceiptBody({ c }: { c: Contribution }) {
@@ -63,7 +63,7 @@ function ReceiptBody({ c }: { c: Contribution }) {
               {formatMoney(c.totalChargeCents, { showCents: true })}
             </Text>
             <Text variant="subhead" color="textMuted">
-              {meta.charged ? (c.status === 'pending' ? 'authorised, awaiting confirmation' : 'charged') : 'not charged'}
+              {meta.charged ? (c.status === 'pending' ? 'authorized, awaiting confirmation' : 'charged') : 'not charged'}
             </Text>
           </View>
           <Divider />

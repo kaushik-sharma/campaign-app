@@ -17,7 +17,7 @@ type Props = {
   invalid?: boolean;
 };
 
-/** A labelled checkbox; the whole row is the touch target. The box fills and the check springs in. */
+/** A labeled checkbox; the whole row is the touch target. The box fills and the check springs in. */
 export function Checkbox({ label, checked, onChange, description, invalid }: Props) {
   const { colors } = useTheme();
   const on = useSharedValue(checked ? 1 : 0);

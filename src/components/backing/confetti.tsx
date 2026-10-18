@@ -3,13 +3,13 @@ import { StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
-  useReducedMotion,
   useSharedValue,
   withDelay,
   withTiming,
   type SharedValue,
 } from 'react-native-reanimated';
 
+import { useReducedMotion } from '@/lib/reduced-motion';
 import { useTheme } from '@/theme';
 
 const COUNT = 32;
