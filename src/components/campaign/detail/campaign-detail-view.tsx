@@ -10,6 +10,7 @@ import Animated, {
   useDerivedValue,
   useSharedValue,
   withDelay,
+  withSpring,
   withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -30,13 +31,13 @@ import { openBackFlow } from '@/features/campaigns/navigation';
 import { formatDate, formatRelative } from '@/lib/format';
 import { shareCampaign } from '@/lib/share';
 import { useHeroStore } from '@/stores/hero';
-import { duration, easing, fonts, layout, radius, space, useTheme } from '@/theme';
+import { duration, easing, fonts, layout, radius, space, spring, useTheme } from '@/theme';
 
 import { SaveButton } from '../engagement-buttons';
 import { AudienceDistribution, ReviewTrust, UseOfFunds } from './explainers';
 import { FeedbackPoll } from './feedback-poll';
 import { FundingPanel } from './funding-panel';
-import { HeroCover } from './hero-cover';
+import { HeroCover, HeroFlight } from './hero-cover';
 import { SourceList } from './source-list';
 import { StickyBackBar } from './sticky-back-bar';
 import { StoryRenderer } from './story-renderer';
@@ -204,6 +205,20 @@ export function CampaignDetailView({ campaign, hero = null, placeholder, preview
   }));
 
   const coverHeight = Math.round(width * 1.02);
+
+  // Card → detail: a copy of the cover flies in above the page, then hands over to the real one.
+  const flight = useSharedValue(hero ? 0 : 1);
+  const landed = useSharedValue(hero ? 0 : 1);
+  const [flying, setFlying] = useState(!!hero);
+  useEffect(() => {
+    if (!hero) return;
+    flight.set(
+      withSpring(1, spring.hero, () => {
+        landed.set(1);
+        scheduleOnRN(setFlying, false);
+      }),
+    );
+  }, [hero, flight, landed]);
   const scrollY = useSharedValue(0);
   const fundingBottom = useSharedValue(0);
 
@@ -242,7 +257,7 @@ export function CampaignDetailView({ campaign, hero = null, placeholder, preview
           category={campaign?.category ?? 'other'}
           height={coverHeight}
           scrollY={scrollY}
-          hero={hero?.rect ?? null}
+          landed={landed}
         />
         <Animated.View
           style={[styles.sheet, { backgroundColor: colors.bg }, revealStyle]}>
@@ -258,6 +273,17 @@ export function CampaignDetailView({ campaign, hero = null, placeholder, preview
           )}
         </Animated.View>
       </Animated.ScrollView>
+
+      {hero && flying && (
+        <HeroFlight
+          image={image}
+          category={campaign?.category ?? 'other'}
+          height={coverHeight}
+          rect={hero.rect}
+          progress={flight}
+          landed={landed}
+        />
+      )}
 
       {/* Floating header: buttons always visible; the bar fades in once the cover scrolls away. */}
       <View pointerEvents="box-none" style={[styles.header, { paddingTop: insets.top, height: insets.top + HEADER }]}>

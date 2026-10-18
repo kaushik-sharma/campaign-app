@@ -1,74 +1,102 @@
 import { LinearGradient } from 'expo-linear-gradient';
-import { useEffect } from 'react';
-import { StyleSheet, useWindowDimensions } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  type SharedValue,
-} from 'react-native-reanimated';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import Animated, { useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
 
 import type { CategoryId, ImageAsset } from '@/domain/types';
 import type { HeroRect } from '@/stores/hero';
-import { spring } from '@/theme';
 
 import { CoverImage } from '../cover-image';
 
-type Props = {
+type CoverProps = {
   image: ImageAsset | null;
   category: CategoryId;
   height: number;
-  scrollY: SharedValue<number>;
-  /** Where the tapped card's cover was on screen. When set, the cover flies from there. */
-  hero: HeroRect | null;
 };
 
-/**
- * Detail page cover.
- * - Entrance: if opened from a card, the image springs from the card's on-screen rect to the
- *   full-width header (a shared-element-style transition that runs in Expo Go).
- * - Scroll: parallax while scrolling down, stretches to fill on pull-down.
- * All of it is computed on the UI thread from two shared values.
- */
-export function HeroCover({ image, category, height, scrollY, hero }: Props) {
+/** The cover at its full size. Never resized: Android's image view reloads (and re-fades) on every size change. */
+function CoverArt({ image, category, height }: CoverProps) {
   const { width } = useWindowDimensions();
-  const progress = useSharedValue(hero ? 0 : 1);
+  return (
+    <View style={{ width, height }}>
+      <CoverImage image={image} category={category} style={StyleSheet.absoluteFill} />
+      {/* Keeps the status bar and floating buttons legible on bright photos. */}
+      <LinearGradient colors={['rgba(0,0,0,0.38)', 'rgba(0,0,0,0)']} style={styles.shade} />
+    </View>
+  );
+}
 
-  useEffect(() => {
-    if (hero) progress.set(withSpring(1, spring.hero));
-  }, [hero, progress]);
-
+/**
+ * Detail page cover: parallax while scrolling down, stretches to fill on pull-down.
+ * Both are transforms computed on the UI thread from the scroll position.
+ */
+export function HeroCover({ scrollY, landed, ...cover }: CoverProps & {
+  scrollY: SharedValue<number>;
+  /** 0 while the flying copy (HeroFlight) is on screen, 1 once it has landed here. */
+  landed: SharedValue<number>;
+}) {
+  const { height } = cover;
   const imageStyle = useAnimatedStyle(() => {
-    const p = progress.get();
     const y = scrollY.get();
-    // Final placement: parallax at 45% speed when scrolling, pinned and stretched when pulled.
-    const finalTop = y < 0 ? y : y * 0.45;
-    const finalHeight = y < 0 ? height - y : height;
-    const from = hero ?? { x: 0, y: finalTop, width, height: finalHeight, radius: 0 };
+    // Pulled down: scale about the centre so the top edge stays pinned to the top of the screen.
+    if (y < 0) return { opacity: landed.get(), transform: [{ translateY: y / 2 }, { scale: (height - y) / height }] };
+    return { opacity: landed.get(), transform: [{ translateY: y * 0.45 }] };
+  });
+
+  return (
+    <View pointerEvents="none" style={{ height }}>
+      <Animated.View style={imageStyle}>
+        <CoverArt {...cover} />
+      </Animated.View>
+    </View>
+  );
+}
+
+/**
+ * The card → detail transition: a copy of the cover flies from the tapped card's on-screen rect to
+ * the top of the page, above the content, then hides as the real cover appears in its place.
+ * Only the clipping frame changes size; the image inside keeps its full size and is moved and
+ * scaled with transforms, so it never reloads mid-flight.
+ */
+export function HeroFlight({ rect, progress, landed, ...cover }: CoverProps & {
+  rect: HeroRect;
+  /** 0 at the card, 1 at the top of the page. */
+  progress: SharedValue<number>;
+  landed: SharedValue<number>;
+}) {
+  const { width } = useWindowDimensions();
+  const { height } = cover;
+
+  const frameStyle = useAnimatedStyle(() => {
+    const p = progress.get();
     return {
-      left: from.x * (1 - p),
-      top: from.y + (finalTop - from.y) * p,
-      width: from.width + (width - from.width) * p,
-      height: from.height + (finalHeight - from.height) * p,
-      borderRadius: from.radius * (1 - p),
+      left: rect.x * (1 - p),
+      top: rect.y * (1 - p),
+      width: rect.width + (width - rect.width) * p,
+      height: rect.height + (height - rect.height) * p,
+      borderRadius: rect.radius * (1 - p),
+      opacity: 1 - landed.get(),
+    };
+  });
+  // Scale the full-size cover to fill the frame, centred, as `contentFit="cover"` would.
+  const artStyle = useAnimatedStyle(() => {
+    const p = progress.get();
+    const w = rect.width + (width - rect.width) * p;
+    const h = rect.height + (height - rect.height) * p;
+    return {
+      transform: [{ translateX: (w - width) / 2 }, { translateY: (h - height) / 2 }, { scale: Math.max(w / width, h / height) }],
     };
   });
 
-  // Lift the cover above the page content while it flies in, then let the content sheet overlap it.
-  const containerStyle = useAnimatedStyle(() => ({ zIndex: progress.get() < 0.98 ? 10 : 0 }));
-
   return (
-    <Animated.View pointerEvents="none" style={[{ height }, containerStyle]}>
-      <Animated.View style={[styles.image, imageStyle]}>
-        <CoverImage image={image} category={category} style={StyleSheet.absoluteFill} />
-        {/* Keeps the status bar and floating buttons legible on bright photos. */}
-        <LinearGradient colors={['rgba(0,0,0,0.38)', 'rgba(0,0,0,0)']} style={styles.shade} />
+    <Animated.View pointerEvents="none" style={[styles.frame, frameStyle]}>
+      <Animated.View style={artStyle}>
+        <CoverArt {...cover} />
       </Animated.View>
     </Animated.View>
   );
 }
 
 const styles = StyleSheet.create({
-  image: { position: 'absolute', overflow: 'hidden' },
+  frame: { position: 'absolute', overflow: 'hidden' },
   shade: { position: 'absolute', top: 0, left: 0, right: 0, height: 140 },
 });
